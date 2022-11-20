@@ -26,11 +26,11 @@ const handler = async (req, res) => {
             },
         })
         .then((response) => {
-            const curRound = response.data.split('id="curRound">')?.at(1).split('<')[0];
+            const curRound = response.data.split('id="curRound">')?.at(1)?.split('<')[0];
             // const curBalance = response.data.split('id="moneyBalance">')?.at(1).split('<')[0].replace(',', '');
-            const direct = response.data.split('direct" value="')?.at(1).split('"')[0];
-            const drawData = response.data.split('ROUND_DRAW_DATE" value="')?.at(1).split('"')[0];
-            const limitData = response.data.split('WAMT_PAY_TLMT_END_DT" value="')?.at(1).split('"')[0];
+            const direct = response.data.split('direct" value="')?.at(1)?.split('"')[0];
+            const drawData = response.data.split('ROUND_DRAW_DATE" value="')?.at(1)?.split('"')[0];
+            const limitData = response.data.split('WAMT_PAY_TLMT_END_DT" value="')?.at(1)?.split('"')[0];
             return { curRound, direct, drawData, limitData };
         });
 

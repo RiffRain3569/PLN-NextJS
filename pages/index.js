@@ -68,7 +68,10 @@ const Home = () => {
                 console.log(response.data);
                 setBuyResult(response.data.message);
             })
-            .catch((error) => console.log(error.response.data));
+            .catch((error) => {
+                console.log(error.response.data);
+                setBuyResult(error.response.data.message);
+            });
     };
     return (
         <Container>
