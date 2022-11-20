@@ -1,13 +1,22 @@
 import '../styles/globals.css';
-import { RecoilRoot, useSetRecoilState } from 'recoil';
-import { jsessionIdState } from '../store/dhlState';
+import { RecoilRoot } from 'recoil';
 import { useEffect } from 'react';
 import axios from 'axios';
+import useDhl from '../hooks/useDhl';
 
 const Item = ({ Component, pageProps }) => {
-    const setJsessionId = useSetRecoilState(jsessionIdState);
+    const { jsessionId, uid, setJsessionId, setUid } = useDhl();
+
     useEffect(() => {
-        axios.get('/api/dhl/jsessionid').then((response) => setJsessionId(response.data));
+        axios({
+            method: 'POST',
+            url: '/api/dhl/jsessionid',
+            headers: { 'Content-type': 'application/json' },
+            data: { jsessionId },
+        }).then((response) => {
+            setJsessionId(response.data.jsessionId);
+            setUid(response.data.uid);
+        });
     }, []);
 
     return <Component {...pageProps} />;

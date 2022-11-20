@@ -1,25 +1,24 @@
 import { Button, Input } from '@mui/material';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-import { useRecoilValue } from 'recoil';
-import { signIn } from '../apis/dhl';
-import { jsessionIdState } from '../store/dhlState';
+import useDhl from '../hooks/useDhl';
 
 const Home = () => {
-    const jsessionId = useRecoilValue(jsessionIdState);
+    const { jsessionId, uid, setUid } = useDhl();
 
-    const { register, handleSubmit } = useForm({
-        defaultValues: { userId: 'jins3569', userPw: 'ly568524!@' },
-    });
+    const { register, handleSubmit } = useForm();
 
     const handleSignIn = async (param) => {
-        const res = await axios({
+        await axios({
             method: 'POST',
             url: '/api/dhl/sign-in',
             headers: { 'Content-type': 'application/json' },
             data: { ...param, jsessionId },
         })
-            .then((response) => console.log('로그인 성공'))
+            .then((response) => {
+                console.log('로그인 성공');
+                setUid(response.data.uid);
+            })
             .catch((error) => console.log(error.response.data));
     };
     return (
@@ -50,6 +49,7 @@ const Home = () => {
                 <Button variant='contained' onClick={handleSubmit((param) => handleSignIn(param))}>
                     로그인
                 </Button>
+                {uid && <div>로그인 중입니다. </div>}
                 <Button variant='contained'>구매</Button>
             </div>
         </div>

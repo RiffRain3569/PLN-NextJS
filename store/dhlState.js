@@ -10,3 +10,9 @@ export const jsessionIdState = atom({
     default: '',
     effects_UNSTABLE: [persistAtom],
 });
+
+export const uidState = atom({
+    key: 'uid',
+    default: '',
+    effects_UNSTABLE: [persistAtom],
+});
