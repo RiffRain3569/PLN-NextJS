@@ -5,7 +5,7 @@ import axios from 'axios';
 import useDhl from '../hooks/useDhl';
 
 const Item = ({ Component, pageProps }) => {
-    const { jsessionId, uid, setJsessionId, setUid } = useDhl();
+    const { jsessionId, setJsessionId, setUid } = useDhl();
 
     useEffect(() => {
         axios({

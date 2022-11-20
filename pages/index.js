@@ -1,5 +1,6 @@
 import { Button, Input } from '@mui/material';
 import axios from 'axios';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import useDhl from '../hooks/useDhl';
 
@@ -49,7 +50,7 @@ const Home = () => {
                 <Button variant='contained' onClick={handleSubmit((param) => handleSignIn(param))}>
                     로그인
                 </Button>
-                {uid && <div>로그인 중입니다. </div>}
+                {uid && <div>{uid} 로그인 중</div>}
                 <Button variant='contained'>구매</Button>
             </div>
         </div>
