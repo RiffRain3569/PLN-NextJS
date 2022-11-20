@@ -1,5 +1,5 @@
+import { URLSearchParams } from 'url';
 import axios from 'axios';
-import qs from 'qs';
 
 const handler = async (req, res) => {
     if (req.method != 'POST') {
@@ -7,31 +7,31 @@ const handler = async (req, res) => {
         return;
     }
 
-    const { userId = '', userPw = '' } = JSON.parse(req.body);
+    const { userId = '', userPw = '', jsessionId } = JSON.parse(req.body);
 
-    console.log(userId, userPw);
+    const body = new URLSearchParams();
+    body.append('method', 'login');
+    body.append('userId', userId);
+    body.append('password', userPw);
 
-    await axios({
-        method: 'POST',
-        url: 'https://www.dhlottery.co.kr/userSsl.do?method=login',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Host: 'www.dhlottery.co.kr',
-            Origin: 'https://www.dhlottery.co.kr',
-            Referer: 'https://www.dhlottery.co.kr/user.do?method=login&returnUrl=%2F',
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
-        },
-        data: qs.stringify({ userId, password: userPw }),
-    }).then((response) => {
-        const jsessionId = response.headers['set-cookie'].find((item) => item.includes('JSESSIONID'));
-        console.log('-----------------------------------------');
-        console.log(response.headers, response.config);
-        console.log(response.headers['set-cookie']);
-        // console.log(response.data);
-        console.log('-----------------------------------------');
-    });
-    // res.status(200).json(req.body);
+    await axios
+        .post('https://www.dhlottery.co.kr/userSsl.do', body, {
+            headers: {
+                Cookie: `JSESSIONID=${jsessionId}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Host: 'www.dhlottery.co.kr',
+                Origin: 'https://www.dhlottery.co.kr',
+                Referer: 'https://www.dhlottery.co.kr/user.do?method=login&returnUrl=%2F',
+                'User-Agent':
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            },
+        })
+        .then((response) => {
+            const uid = response.headers['set-cookie'].find((item) => item.includes('UID='));
+            console.log(uid);
+            uid ? res.status(200).json(response.data) : res.status(500).json({ message: '로그인에 실패하였습니다.' });
+        });
+    // res.status(200).json();
 };
 
 export default handler;

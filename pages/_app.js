@@ -1,7 +1,24 @@
-import '../styles/globals.css'
+import '../styles/globals.css';
+import { RecoilRoot, useSetRecoilState } from 'recoil';
+import { jsessionIdState } from '../store/dhlState';
+import { useEffect } from 'react';
+import axios from 'axios';
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
-}
+const Item = ({ Component, pageProps }) => {
+    const setJsessionId = useSetRecoilState(jsessionIdState);
+    useEffect(() => {
+        axios.get('/api/dhl/jsessionid').then((response) => setJsessionId(response.data));
+    }, []);
 
-export default MyApp
+    return <Component {...pageProps} />;
+};
+
+const MyApp = (props) => {
+    return (
+        <RecoilRoot>
+            <Item {...props} />
+        </RecoilRoot>
+    );
+};
+
+export default MyApp;
