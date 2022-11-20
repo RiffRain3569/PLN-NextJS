@@ -29,7 +29,7 @@ const handler = async (req, res) => {
         .then((response) => {
             const uid = response.headers['set-cookie']
                 .find((item) => item.includes('UID='))
-                .split('UID=')[1]
+                ?.split('UID=')[1]
                 .split(';')[0];
             console.log(uid);
             uid ? res.status(200).json({ uid }) : res.status(500).json({ message: '로그인에 실패하였습니다.' });

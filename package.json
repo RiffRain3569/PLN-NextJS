@@ -23,7 +23,8 @@
     "recoil-persist": "^4.2.0",
     "request": "^2.88.2",
     "styled-component": "^2.8.0",
-    "styled-components": "^5.3.6"
+    "styled-components": "^5.3.6",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "eslint": "8.26.0",

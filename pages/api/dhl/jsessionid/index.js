@@ -16,12 +16,25 @@ const handler = async (req, res) => {
         })
         .then((response) => {
             console.log(response.headers['set-cookie']);
-            const resJsessionId = response.headers['set-cookie'].find((item) => item.includes('JSESSIONID'));
-            const resUid = response.headers['set-cookie'].find((item) => item.includes('UID'));
-
+            const resJsessionId = response.headers['set-cookie']
+                .find((item) => item.includes('JSESSIONID'))
+                ?.split('JSESSIONID=')[1]
+                .split(';')[0];
+            const resUid = response.headers['set-cookie']
+                .find((item) => item.includes('UID'))
+                ?.split('UID=')[1]
+                .split(';')[0];
+            const amount = response.data
+                .split('/myPage.do?method=depositListView')
+                .at(1)
+                ?.split('<strong>')[1]
+                .split('</strong>')[0]
+                .slice(0, -2);
+            console.log(amount);
             res.status(200).json({
-                jsessionId: resJsessionId?.split('JSESSIONID=')[1].split(';')[0] ?? jsessionId,
-                uid: resUid?.split('UID=')[1].split(';')[0] ?? '',
+                jsessionId: resJsessionId ?? jsessionId,
+                uid: resUid ?? '',
+                amount: amount ?? '',
             });
         });
 };

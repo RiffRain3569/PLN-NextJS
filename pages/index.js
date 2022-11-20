@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import useDhl from '../hooks/useDhl';
 
 const Home = () => {
-    const { jsessionId, uid, setUid } = useDhl();
+    const { jsessionId, uid, amount, setReset } = useDhl();
+    const [buyResult, setBuyResult] = useState('');
 
     const { register, handleSubmit } = useForm();
 
@@ -18,7 +19,22 @@ const Home = () => {
         })
             .then((response) => {
                 console.log('로그인 성공');
-                setUid(response.data.uid);
+                setReset(true);
+            })
+            .catch((error) => console.log(error.response.data));
+    };
+
+    const handleBuyLotto = async (dataList) => {
+        setBuyResult('로딩중...');
+        await axios({
+            method: 'POST',
+            url: '/api/dhl/buy-lotto',
+            headers: { 'Content-type': 'application/json' },
+            data: { jsessionId, dataList: dataList },
+        })
+            .then((response) => {
+                console.log(response.data);
+                setBuyResult(response.data.message);
             })
             .catch((error) => console.log(error.response.data));
     };
@@ -51,7 +67,14 @@ const Home = () => {
                     로그인
                 </Button>
                 {uid && <div>{uid} 로그인 중</div>}
-                <Button variant='contained'>구매</Button>
+                {amount && <div>보유 금액: {amount}</div>}
+                <Button variant='contained' onClick={() => handleBuyLotto([null])}>
+                    1회 자동 구매
+                </Button>
+                <Button variant='contained' onClick={() => handleBuyLotto([null, null, null, null, null])}>
+                    5회 자동 구매
+                </Button>
+                {buyResult && <div>{buyResult}</div>}
             </div>
         </div>
     );

@@ -1,0 +1,9 @@
+round: 1043
+direct: 172.17.20.52
+nBuyAmount: 1000
+param: [{"genType":"0","arrGameChoiceNum":null,"alpabet":"A"}]
+ROUND_DRAW_DATE: 2022/11/26
+WAMT_PAY_TLMT_END_DT: 2023/11/27
+gameCnt: 1
+
+round=1043&direct=172.17.20.52&nBuyAmount=1000&param=%5B%7B%22genType%22%3A%220%22%2C%22arrGameChoiceNum%22%3Anull%2C%22alpabet%22%3A%22A%22%7D%5D&ROUND_DRAW_DATE=2022%2F11%2F26&WAMT_PAY_TLMT_END_DT=2023%2F11%2F27&gameCnt=1
