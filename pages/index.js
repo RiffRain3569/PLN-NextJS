@@ -2,7 +2,39 @@ import { Button, Input } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
 import useDhl from '../hooks/useDhl';
+
+const Container = styled.div`
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #707070;
+`;
+
+const Item = styled.div`
+    width: 400px;
+    height: 450px;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: stretch;
+
+    background: #a0a0a0;
+    border: 1px solid black;
+    border-radius: 10px;
+
+    @media (max-width: 768px) {
+        width: 90%;
+        height: 90%;
+    }
+`;
 
 const Home = () => {
     const { jsessionId, uid, amount, setReset } = useDhl();
@@ -39,28 +71,8 @@ const Home = () => {
             .catch((error) => console.log(error.response.data));
     };
     return (
-        <div
-            style={{
-                background: '#33ff77',
-                position: 'fixed',
-                top: '0',
-                bottom: '0',
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
-            <div
-                style={{
-                    background: '#00b33c',
-                    width: '400px',
-                    height: '450px',
-                    padding: '50px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-around',
-                }}>
+        <Container>
+            <Item>
                 <Input type='text' placeholder='ID' {...register('userId', { required: true })} />
                 <Input type='password' placeholder='Password' {...register('userPw', { required: true })} />
                 <Button variant='contained' onClick={handleSubmit((param) => handleSignIn(param))}>
@@ -75,8 +87,8 @@ const Home = () => {
                     5회 자동 구매
                 </Button>
                 {buyResult && <div>{buyResult}</div>}
-            </div>
-        </div>
+            </Item>
+        </Container>
     );
 };
 
