@@ -19,12 +19,15 @@ const Container = styled.div`
 const Item = styled.div`
     width: 400px;
     height: 450px;
-    padding: 20px;
+    padding: 40px;
 
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    // justify-content: space-around;
     align-items: stretch;
+    gap: 20px;
+
+    overflow: auto;
 
     background: #a0a0a0;
     border: 1px solid black;
@@ -89,7 +92,13 @@ const Home = () => {
                 <Button variant='contained' onClick={() => handleBuyLotto([null, null, null, null, null])}>
                     5회 자동 구매
                 </Button>
-                {buyResult && <div>{buyResult}</div>}
+                {buyResult && (
+                    <div>
+                        {buyResult.split(' ').map((str, key) => (
+                            <div key={key}>{str}</div>
+                        ))}
+                    </div>
+                )}
             </Item>
         </Container>
     );
