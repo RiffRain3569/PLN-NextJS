@@ -1,8 +1,10 @@
 import { Button, Input } from '@mui/material';
-import axios from 'axios';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
 import styled from 'styled-components';
+import { dhlBuyLotto, dhlSignIn } from '../apis/dhl/ssr';
 import useDhl from '../hooks/useDhl';
 
 const Container = styled.div`
@@ -40,50 +42,60 @@ const Item = styled.div`
 `;
 
 const Home = () => {
+    const signInRef = useRef();
     const { jsessionId, uid, amount, setReset } = useDhl();
     const [buyResult, setBuyResult] = useState('');
-
+    const [message, setMessage] = useState('');
     const { register, handleSubmit } = useForm();
 
-    const handleSignIn = async (param) => {
-        await axios({
-            method: 'POST',
-            url: '/api/dhl/sign-in',
-            headers: { 'Content-type': 'application/json' },
-            data: { ...param, jsessionId },
-        })
-            .then((response) => {
-                console.log('로그인 성공');
-                setReset(true);
-            })
-            .catch((error) => console.log(error.response.data));
-    };
+    const dhlSignInMutation = useMutation(dhlSignIn, {
+        onSuccess: (res) => {
+            console.log(res);
+        },
+        onError: (error) => {
+            setMessage(error.message);
+        },
+    });
+
+    const dhlBuyLottoMutation = useMutation(dhlBuyLotto, {
+        onSuccess: (res) => {
+            setBuyResult(res.message);
+        },
+        onError: (error) => {
+            setBuyResult(error.message);
+        },
+    });
 
     const handleBuyLotto = async (dataList) => {
         setBuyResult('로딩중...');
-        await axios({
-            method: 'POST',
-            url: '/api/dhl/buy-lotto',
-            headers: { 'Content-type': 'application/json' },
-            data: { jsessionId, dataList: dataList },
-        })
-            .then((response) => {
-                console.log(response.data);
-                setBuyResult(response.data.message);
-            })
-            .catch((error) => {
-                console.log(error.response.data);
-                setBuyResult(error.response.data.message);
-            });
+        dhlBuyLottoMutation.mutate({ dataList, jsessionId });
+    };
+
+    const handleKeyUp = (e) => {
+        setMessage('');
+        if (e.key === 'Enter') {
+            signInRef.current.click();
+        }
     };
     return (
         <Container>
             <Item>
-                <Input type='text' placeholder='ID' {...register('userId', { required: true })} />
-                <Input type='password' placeholder='Password' {...register('userPw', { required: true })} />
-                <Button variant='contained' onClick={handleSubmit((param) => handleSignIn(param))}>
+                <Input type='text' placeholder='ID' {...register('userId', { required: true })} onKeyUp={handleKeyUp} />
+                <Input
+                    type='password'
+                    placeholder='Password'
+                    {...register('userPw', { required: true })}
+                    onKeyUp={handleKeyUp}
+                />
+                <Button
+                    variant='contained'
+                    onClick={handleSubmit(({ userId, userPw }) =>
+                        dhlSignInMutation.mutate({ userId, userPw, jsessionId })
+                    )}
+                    ref={signInRef}>
                     로그인
                 </Button>
+                {message && <div>{message}</div>}
                 {uid && <div>{uid} 로그인 중</div>}
                 {amount && <div>보유 금액: {amount}</div>}
                 <Button variant='contained' onClick={() => handleBuyLotto([null])}>
