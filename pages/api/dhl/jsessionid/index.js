@@ -7,7 +7,7 @@ const handler = async (req, res) => {
     }
 
     const { jsessionId } = JSON.parse(req.body);
-    console.log(jsessionId);
+    console.log('jsessionId', jsessionId, req.body);
     await axios
         .get('https://dhlottery.co.kr/common.do?method=main', {
             headers: {
@@ -15,7 +15,7 @@ const handler = async (req, res) => {
             },
         })
         .then((response) => {
-            console.log(response.headers['set-cookie']);
+            console.log('set-cookie', response.headers['set-cookie']);
             const resJsessionId = response.headers['set-cookie']
                 .find((item) => item.includes('JSESSIONID'))
                 ?.split('JSESSIONID=')[1]
@@ -30,7 +30,7 @@ const handler = async (req, res) => {
                 ?.split('<strong>')[1]
                 .split('</strong>')[0]
                 .slice(0, -2);
-            console.log(amount);
+            console.log('amount', amount);
             res.status(200).json({
                 jsessionId: resJsessionId ?? jsessionId,
                 uid: resUid ?? '',

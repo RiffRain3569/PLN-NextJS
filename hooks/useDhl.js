@@ -1,6 +1,7 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useMutation } from 'react-query';
+import { useRecoilState } from 'recoil';
+import { dhlJsessionid } from '../apis/dhl/ssr';
 import { amountState, jsessionIdState, uidState } from '../store/dhlState';
 
 const useDhl = () => {
@@ -12,6 +13,15 @@ const useDhl = () => {
 
     const [reset, setReset] = useState(false);
 
+    const dhlSessionMutation = useMutation(dhlJsessionid, {
+        onSuccess: (res) => {
+            setJsessionId(res.jsessionId);
+            setUid(res.uid);
+            setAmount(res.amount);
+            setReset(false);
+        },
+    });
+
     useEffect(() => {
         setUidState(uid);
         setAmountState(amount);
@@ -19,17 +29,7 @@ const useDhl = () => {
 
     useEffect(() => {
         if (reset) {
-            axios({
-                method: 'POST',
-                url: '/api/dhl/jsessionid',
-                headers: { 'Content-type': 'application/json' },
-                data: { jsessionId },
-            }).then((response) => {
-                setJsessionId(response.data.jsessionId);
-                setUid(response.data.uid);
-                setAmount(response.data.amount);
-            });
-            setReset(false);
+            dhlSessionMutation.mutate({ jsessionId });
         }
     }, [reset]);
 

@@ -1,5 +1,4 @@
 import { atom } from 'recoil';
-import { v1 } from 'uuid';
 import { recoilPersist } from 'recoil-persist';
 
 const { persistAtom } = recoilPersist({
@@ -7,19 +6,19 @@ const { persistAtom } = recoilPersist({
 });
 
 export const jsessionIdState = atom({
-    key: `jsessionId/${v1}`,
+    key: `jsessionId`,
     default: '',
     effects_UNSTABLE: [persistAtom],
 });
 
 export const uidState = atom({
-    key: `uid/${v1}`,
+    key: `uid`,
     default: '',
     effects_UNSTABLE: [persistAtom],
 });
 
 export const amountState = atom({
-    key: `amount/${v1}`,
+    key: `amount`,
     default: '',
     effects_UNSTABLE: [persistAtom],
 });
