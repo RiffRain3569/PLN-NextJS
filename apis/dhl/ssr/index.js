@@ -10,7 +10,9 @@ export const dhlSsrApi = async ({ url, method, reqData }) => {
         param: method === HttpMethod.GET ? { ...reqData } : {},
     })
         .then((response) => response.data)
-        .catch((error) => error.response.data);
+        .catch((error) => {
+            throw error.response.data;
+        });
 };
 
 export const dhlSignIn = async ({ userId = '', userPw = '', jsessionId }) => {

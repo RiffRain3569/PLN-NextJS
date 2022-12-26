@@ -1,4 +1,5 @@
 import { Button, Input } from '@mui/material';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -41,14 +42,18 @@ const Item = styled.div`
 `;
 
 const Home = () => {
+    const signInRef = useRef();
     const { jsessionId, uid, amount, setReset } = useDhl();
     const [buyResult, setBuyResult] = useState('');
-
+    const [message, setMessage] = useState('');
     const { register, handleSubmit } = useForm();
 
     const dhlSignInMutation = useMutation(dhlSignIn, {
         onSuccess: (res) => {
             console.log(res);
+        },
+        onError: (error) => {
+            setMessage(error.message);
         },
     });
 
@@ -66,18 +71,31 @@ const Home = () => {
         dhlBuyLottoMutation.mutate({ dataList, jsessionId });
     };
 
+    const handleKeyUp = (e) => {
+        setMessage('');
+        if (e.key === 'Enter') {
+            signInRef.current.click();
+        }
+    };
     return (
         <Container>
             <Item>
-                <Input type='text' placeholder='ID' {...register('userId', { required: true })} />
-                <Input type='password' placeholder='Password' {...register('userPw', { required: true })} />
+                <Input type='text' placeholder='ID' {...register('userId', { required: true })} onKeyUp={handleKeyUp} />
+                <Input
+                    type='password'
+                    placeholder='Password'
+                    {...register('userPw', { required: true })}
+                    onKeyUp={handleKeyUp}
+                />
                 <Button
                     variant='contained'
                     onClick={handleSubmit(({ userId, userPw }) =>
                         dhlSignInMutation.mutate({ userId, userPw, jsessionId })
-                    )}>
+                    )}
+                    ref={signInRef}>
                     로그인
                 </Button>
+                {message && <div>{message}</div>}
                 {uid && <div>{uid} 로그인 중</div>}
                 {amount && <div>보유 금액: {amount}</div>}
                 <Button variant='contained' onClick={() => handleBuyLotto([null])}>
