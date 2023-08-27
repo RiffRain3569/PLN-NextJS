@@ -1,18 +1,14 @@
-'use server';
+import { DH_SESSION } from '@constants/session';
 import axios from 'axios';
+import { NextResponse } from 'next/server';
 
-const handler = async (req, res) => {
-    if (req.method != 'POST') {
-        res.status(405);
-        return;
-    }
+export const POST = async (req) => {
+    const dhSession = req.cookies.get(DH_SESSION)?.value;
 
-    const { jsessionId } = JSON.parse(req.body);
-    console.log('jsessionId', jsessionId, req.body);
-    await axios
+    return await axios
         .get('https://dhlottery.co.kr/common.do?method=main', {
             headers: {
-                Cookie: `JSESSIONID=${jsessionId}`,
+                Cookie: `JSESSIONID=${dhSession}`,
             },
         })
         .then((response) => {
@@ -32,12 +28,8 @@ const handler = async (req, res) => {
                 .split('</strong>')[0]
                 .slice(0, -2);
             console.log('amount', amount);
-            res.status(200).json({
-                jsessionId: resJsessionId ?? jsessionId,
-                uid: resUid ?? '',
-                amount: amount ?? '',
-            });
+            let res = NextResponse.json({ uid: resUid ?? '', amount: amount ?? '' });
+            res.cookies.set('dh_session', resJsessionId ?? dhSession);
+            return res;
         });
 };
-
-export default handler;

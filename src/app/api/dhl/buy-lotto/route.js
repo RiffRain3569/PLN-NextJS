@@ -1,4 +1,6 @@
+import { DH_SESSION } from '@constants/session';
 import axios from 'axios';
+import { NextResponse } from 'next/server';
 import qs from 'qs';
 // param: [
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'A' },
@@ -8,20 +10,16 @@ import qs from 'qs';
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'E' },
 // ],
 
-const handler = async (req, res) => {
-    if (req.method != 'POST') {
-        res.status(405);
-        return;
-    }
+export const POST = async (req) => {
+    const dhSession = req.cookies.get(DH_SESSION)?.value;
+    const { dataList = [] } = await req.json();
     const alpabet = ['A', 'B', 'C', 'D', 'E'];
-
-    const { dataList = [], jsessionId } = JSON.parse(req.body);
 
     // 부가 데이터 가져오기
     const preData = await axios
         .get('https://ol.dhlottery.co.kr/olotto/game/game645.do', {
             headers: {
-                Cookie: `JSESSIONID=${jsessionId}`,
+                Cookie: `JSESSIONID=${dhSession}`,
                 Host: 'ol.dhlottery.co.kr',
             },
         })
@@ -35,15 +33,14 @@ const handler = async (req, res) => {
         });
 
     if (!preData.curRound) {
-        res.status(501).json({ message: '구매할 수 없습니다.' });
-        return;
+        return NextResponse.json({ message: '구매할 수 없습니다.' }, { status: 501 });
     }
 
     // ready ip 데이터 가져오기
     const readyData = await axios
         .post('https://ol.dhlottery.co.kr/olotto/game/egovUserReadySocket.json', '', {
             headers: {
-                Cookie: `JSESSIONID=${jsessionId}`,
+                Cookie: `JSESSIONID=${dhSession}`,
                 'Content-Type': 'application/json; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',
@@ -55,8 +52,7 @@ const handler = async (req, res) => {
         });
 
     if (!readyData.direct) {
-        res.status(501).json({ message: 'ip를 찾을 수 없습니다.' });
-        return;
+        return NextResponse.json({ message: 'ip를 찾을 수 없습니다.' }, { status: 501 });
     }
 
     const body = {
@@ -82,7 +78,7 @@ const handler = async (req, res) => {
     const result = await axios
         .post('https://www.dhlottery.co.kr/olotto/game/execBuy.do', qs.stringify(body), {
             headers: {
-                Cookie: `JSESSIONID=${jsessionId}`,
+                Cookie: `JSESSIONID=${dhSession}`,
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',
@@ -95,7 +91,5 @@ const handler = async (req, res) => {
 
             return { message: data?.arrGameChoiceNum?.join(' ') ?? data?.resultMsg };
         });
-    res.status(200).json(result);
+    return NextResponse.json(result);
 };
-
-export default handler;

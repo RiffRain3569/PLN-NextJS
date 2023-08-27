@@ -5,7 +5,7 @@ import useDhl from '@hooks/useDhl';
 import { Button, Input } from '@mui/material';
 import { styled } from '@mui/system';
 import { useMutation } from '@tanstack/react-query';
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent, ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 const Container = styled('div')`
@@ -42,14 +42,15 @@ const Item = styled('div')`
     }
 `;
 
-const Home = () => {
-    const { jsessionId, uid, amount, setReset } = useDhl();
+const Home = (): ReactNode => {
+    const { uid, amount, setReset } = useDhl();
     const [buyResult, setBuyResult] = useState('');
     const [message, setMessage] = useState('');
     const { register, handleSubmit } = useForm();
 
     const dhlSignInMutation = useMutation(dhlSignIn, {
         onSuccess: (res) => {
+            setReset(true);
             console.log(res);
         },
 
@@ -69,7 +70,7 @@ const Home = () => {
 
     const handleBuyLotto = async (dataList: null[]) => {
         setBuyResult('로딩중...');
-        dhlBuyLottoMutation.mutate({ dataList, jsessionId });
+        dhlBuyLottoMutation.mutate({ dataList });
     };
 
     const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -78,8 +79,8 @@ const Home = () => {
             handleSignIn();
         }
     };
-    const handleSignIn = () =>
-        handleSubmit(({ userId, userPw }) => dhlSignInMutation.mutate({ userId, userPw, jsessionId }));
+    const handleSignIn = handleSubmit(({ userId, userPw }) => dhlSignInMutation.mutate({ userId, userPw }));
+
     return (
         <Container>
             <Item>

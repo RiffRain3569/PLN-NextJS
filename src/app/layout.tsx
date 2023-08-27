@@ -7,7 +7,7 @@ import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient();
 
-const RootLayout = ({ children }: { children: ReactNode }) => {
+const RootLayout = ({ children }: { children: ReactNode }): ReactNode => {
     return (
         <html>
             <head>

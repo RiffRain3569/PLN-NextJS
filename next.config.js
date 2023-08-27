@@ -1,9 +1,12 @@
+const { randomUUID } = require('crypto');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
-    experimental: {
-        serverActions: true,
+    generateBuildId: async () => {
+        // You can, for example, get the latest git commit hash here
+        return randomUUID();
     },
 };
 

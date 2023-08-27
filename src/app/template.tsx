@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     title: 'buy lotto',
 };
 
-const RootTemplate = ({ children }: { children: ReactNode }) => {
+const RootTemplate = ({ children }: { children: ReactNode }): ReactNode => {
     const { setReset } = useDhl();
 
     useEffect(() => {

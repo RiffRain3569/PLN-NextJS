@@ -1,23 +1,21 @@
-import { URLSearchParams } from 'url';
+import { DH_SESSION } from '@constants/session';
 import axios from 'axios';
+import { NextResponse } from 'next/server';
+import { URLSearchParams } from 'url';
 
-const handler = async (req, res) => {
-    if (req.method != 'POST') {
-        res.status(405);
-        return;
-    }
-
-    const { userId = '', userPw = '', jsessionId } = JSON.parse(req.body);
+export const POST = async (req) => {
+    const dhSession = req.cookies.get(DH_SESSION)?.value;
+    const { userId = '', userPw = '' } = await req.json();
 
     const body = new URLSearchParams();
     body.append('method', 'login');
     body.append('userId', userId);
     body.append('password', userPw);
 
-    await axios
+    return await axios
         .post('https://www.dhlottery.co.kr/userSsl.do', body, {
             headers: {
-                Cookie: `JSESSIONID=${jsessionId}`,
+                Cookie: `JSESSIONID=${dhSession}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
                 Host: 'www.dhlottery.co.kr',
                 Origin: 'https://www.dhlottery.co.kr',
@@ -27,14 +25,18 @@ const handler = async (req, res) => {
             },
         })
         .then((response) => {
+            console.log(response.headers['set-cookie']);
             const uid = response.headers['set-cookie']
                 .find((item) => item.includes('UID='))
                 ?.split('UID=')[1]
                 .split(';')[0];
-            console.log(uid);
-            uid ? res.status(200).json({ uid }) : res.status(500).json({ message: '로그인에 실패하였습니다.' });
+
+            return uid
+                ? NextResponse.json({ uid })
+                : NextResponse.json(
+                      { error: 'Internal Server Error', message: '로그인에 실패하였습니다.' },
+                      { status: 500 }
+                  );
         });
     // res.status(200).json();
 };
-
-export default handler;
