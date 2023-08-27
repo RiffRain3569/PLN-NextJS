@@ -1,13 +1,14 @@
-import { Button, Input } from '@mui/material';
-import { useRef } from 'react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
-import styled from 'styled-components';
-import { dhlBuyLotto, dhlSignIn } from '../apis/dhl/ssr';
-import useDhl from '../hooks/useDhl';
+'use client';
 
-const Container = styled.div`
+import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
+import useDhl from '@hooks/useDhl';
+import { Button, Input } from '@mui/material';
+import { styled } from '@mui/system';
+import { useMutation } from '@tanstack/react-query';
+import { KeyboardEvent, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+const Container = styled('div')`
     width: 100vw;
     height: 100vh;
 
@@ -18,7 +19,7 @@ const Container = styled.div`
     background: #707070;
 `;
 
-const Item = styled.div`
+const Item = styled('div')`
     width: 400px;
     height: 450px;
     padding: 40px;
@@ -42,7 +43,6 @@ const Item = styled.div`
 `;
 
 const Home = () => {
-    const signInRef = useRef();
     const { jsessionId, uid, amount, setReset } = useDhl();
     const [buyResult, setBuyResult] = useState('');
     const [message, setMessage] = useState('');
@@ -52,31 +52,34 @@ const Home = () => {
         onSuccess: (res) => {
             console.log(res);
         },
-        onError: (error) => {
+
+        onError: (error: Error) => {
             setMessage(error.message);
         },
     });
 
     const dhlBuyLottoMutation = useMutation(dhlBuyLotto, {
-        onSuccess: (res) => {
+        onSuccess: (res: { message: string }) => {
             setBuyResult(res.message);
         },
-        onError: (error) => {
+        onError: (error: { message: string }) => {
             setBuyResult(error.message);
         },
     });
 
-    const handleBuyLotto = async (dataList) => {
+    const handleBuyLotto = async (dataList: null[]) => {
         setBuyResult('로딩중...');
         dhlBuyLottoMutation.mutate({ dataList, jsessionId });
     };
 
-    const handleKeyUp = (e) => {
+    const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
         setMessage('');
         if (e.key === 'Enter') {
-            signInRef.current.click();
+            handleSignIn();
         }
     };
+    const handleSignIn = () =>
+        handleSubmit(({ userId, userPw }) => dhlSignInMutation.mutate({ userId, userPw, jsessionId }));
     return (
         <Container>
             <Item>
@@ -87,12 +90,7 @@ const Home = () => {
                     {...register('userPw', { required: true })}
                     onKeyUp={handleKeyUp}
                 />
-                <Button
-                    variant='contained'
-                    onClick={handleSubmit(({ userId, userPw }) =>
-                        dhlSignInMutation.mutate({ userId, userPw, jsessionId })
-                    )}
-                    ref={signInRef}>
+                <Button variant='contained' onClick={handleSignIn}>
                     로그인
                 </Button>
                 {message && <div>{message}</div>}

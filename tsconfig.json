@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "jsx": "preserve",
+        "strict": true,
+        "baseUrl": "./src",
+        "paths": {
+            "@styles/*": ["styles/*"],
+            "@apis/*": ["apis/*"],
+            "@constants/*": ["constants/*"],
+            "@store/*": ["store/*"],
+            "@hooks/*": ["hooks/*"]
+        },
+        // mui
+        "lib": ["es6", "dom"],
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "incremental": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
+    },
+    "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+    "exclude": ["node_modules"]
+}

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useMutation } from 'react-query';
+import { dhlJsessionid } from '@apis/dhl/ssr';
+import { amountState, jsessionIdState, uidState } from '@store/dhlState';
+import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { dhlJsessionid } from '../apis/dhl/ssr';
-import { amountState, jsessionIdState, uidState } from '../store/dhlState';
 
 const useDhl = () => {
     const [jsessionId, setJsessionId] = useRecoilState(jsessionIdState);

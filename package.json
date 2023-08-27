@@ -1,34 +1,39 @@
 {
-  "name": "pln-nextjs",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.10.4",
-    "@emotion/styled": "^11.10.4",
-    "@mui/material": "^5.10.10",
-    "@mui/styled-engine-sc": "^5.10.6",
-    "axios": "^1.1.3",
-    "next": "12.3.1",
-    "qs": "^6.11.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-hook-form": "^7.39.4",
-    "react-query": "^3.39.2",
-    "recoil": "^0.7.6",
-    "recoil-persist": "^4.2.0",
-    "request": "^2.88.2",
-    "styled-component": "^2.8.0",
-    "styled-components": "^5.3.6",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
-    "eslint": "8.26.0",
-    "eslint-config-next": "12.3.1"
-  }
+    "name": "pln-nextjs",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.10.4",
+        "@emotion/styled": "^11.10.4",
+        "@mui/material": "^5.10.10",
+        "@mui/styled-engine-sc": "^5.10.6",
+        "@tanstack/react-query": "^4.33.0",
+        "@tanstack/react-query-devtools": "^4.33.0",
+        "axios": "^1.1.3",
+        "next": "^13.4.19",
+        "qs": "^6.11.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-hook-form": "^7.39.4",
+        "recoil": "^0.7.6",
+        "recoil-persist": "^4.2.0",
+        "request": "^2.88.2",
+        "styled-component": "^2.8.0",
+        "styled-components": "^5.3.6",
+        "uuid": "^9.0.0"
+    },
+    "devDependencies": {
+        "@tanstack/eslint-plugin-query": "^4.32.5",
+        "@types/node": "^20.5.6",
+        "@types/react": "^18.2.21",
+        "eslint": "8.26.0",
+        "eslint-config-next": "12.3.1",
+        "typescript": "^5.2.2"
+    }
 }
