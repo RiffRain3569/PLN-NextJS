@@ -20,7 +20,7 @@ const CircleButton = styled(Button)<{ selected?: boolean; tens: number }>(({ the
     },
 }));
 
-const NumberButton: React.FC<NumberButtonProps> = ({ number, ...props }) => {
+const NumberButton: React.FC<NumberButtonProps> = ({ number, sx, ...props }) => {
     return (
         <CircleButton variant='contained' tens={Math.ceil(number / 10) - 1} {...props}>
             {number}
