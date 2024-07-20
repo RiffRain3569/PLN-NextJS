@@ -2,7 +2,7 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import NumberButton from 'components/Button/NumberButton';
 import React, { useState, useEffect } from 'react';
-import { shuffleArray } from 'utils/common';
+import { isEqual, shuffleArray } from 'utils/common';
 
 interface LttPickAreaProps {
     onChange?: (lttNums: number[][]) => void;
@@ -38,12 +38,25 @@ const LttPickAreaContent: React.FC<LttPickAreaProps> = ({ onChange }) => {
 
     const handleGenLttNums = () => {
         let result: number[][] = [];
-        for (let i = 0; i < curRandomCnt; i++) {
-            result.push(
-                shuffleArray(curPicks)
-                    .slice(0, 6)
-                    .sort((a, b) => a - b)
-            );
+
+        for (let i = 0; i < curRandomCnt * 10; i++) {
+            const selectLtt = shuffleArray(curPicks)
+                .slice(0, 6)
+                .sort((a, b) => a - b);
+
+            let isDuplicate = false;
+            for (const lotto of result) {
+                if (isEqual(lotto, selectLtt)) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                result.push(selectLtt);
+            }
+            if (result.length >= curRandomCnt) {
+                break;
+            }
         }
         setLttNums(result);
     };
