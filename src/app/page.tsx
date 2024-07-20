@@ -5,6 +5,7 @@ import useDhl from '@hooks/useDhl';
 import { Button, Input } from '@mui/material';
 import { styled } from '@mui/system';
 import { useMutation } from '@tanstack/react-query';
+import LttPickAreaContent from 'components/Content/LttPickAreaContent';
 import { KeyboardEvent, ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -12,18 +13,26 @@ const Container = styled('div')`
     width: 100vw;
     height: 100vh;
 
+    overflow-x: hidden;
+
+    background: #707070;
+`;
+const Content = styled('div')`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 
     background: #707070;
+    overflow: auto;
 `;
 
 const Item = styled('div')`
     width: 400px;
-    height: 450px;
+    height: auto;
     padding: 40px;
 
+    margin: 20px 0;
     display: flex;
     flex-direction: column;
     // justify-content: space-around;
@@ -83,34 +92,43 @@ const Home = (): ReactNode => {
 
     return (
         <Container>
-            <Item>
-                <Input type='text' placeholder='ID' {...register('userId', { required: true })} onKeyUp={handleKeyUp} />
-                <Input
-                    type='password'
-                    placeholder='Password'
-                    {...register('userPw', { required: true })}
-                    onKeyUp={handleKeyUp}
-                />
-                <Button variant='contained' onClick={handleSignIn}>
-                    로그인
-                </Button>
-                {message && <div>{message}</div>}
-                {uid && <div>{uid} 로그인 중</div>}
-                {amount && <div>보유 금액: {amount}</div>}
-                <Button variant='contained' onClick={() => handleBuyLotto([null])}>
-                    1회 자동 구매
-                </Button>
-                <Button variant='contained' onClick={() => handleBuyLotto([null, null, null, null, null])}>
-                    5회 자동 구매
-                </Button>
-                {buyResult && (
-                    <div>
-                        {buyResult.split(' ').map((str, key) => (
-                            <div key={key}>{str}</div>
-                        ))}
-                    </div>
-                )}
-            </Item>
+            <Content>
+                <Item>
+                    <Input
+                        type='text'
+                        placeholder='ID'
+                        {...register('userId', { required: true })}
+                        onKeyUp={handleKeyUp}
+                    />
+                    <Input
+                        type='password'
+                        placeholder='Password'
+                        {...register('userPw', { required: true })}
+                        onKeyUp={handleKeyUp}
+                    />
+                    <Button variant='contained' onClick={handleSignIn}>
+                        로그인
+                    </Button>
+                    {message && <div>{message}</div>}
+                    {uid && <div>{uid} 로그인 중</div>}
+                    {amount && <div>보유 금액: {amount}</div>}
+                    <Button variant='contained' onClick={() => handleBuyLotto([null])}>
+                        1회 자동 구매
+                    </Button>
+                    <Button variant='contained' onClick={() => handleBuyLotto([null, null, null, null, null])}>
+                        5회 자동 구매
+                    </Button>
+                    {buyResult && (
+                        <div>
+                            {buyResult.split(' ').map((str, key) => (
+                                <div key={key}>{str}</div>
+                            ))}
+                        </div>
+                    )}
+
+                    <LttPickAreaContent onChange={(lttNums) => {}} />
+                </Item>
+            </Content>
         </Container>
     );
 };
