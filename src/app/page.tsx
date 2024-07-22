@@ -5,7 +5,8 @@ import useDhl from '@hooks/useDhl';
 import { Button, Input } from '@mui/material';
 import { styled } from '@mui/system';
 import { useMutation } from '@tanstack/react-query';
-import LttPickAreaContent from 'components/Content/LttPickAreaContent';
+import LttPickPanel from 'components/Panel/LttPickPanel';
+import LttPositionPickPanel from 'components/Panel/LttPositionPickPanel';
 import { KeyboardEvent, ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -125,8 +126,8 @@ const Home = (): ReactNode => {
                             ))}
                         </div>
                     )}
-
-                    <LttPickAreaContent onChange={(lttNums) => {}} />
+                    <LttPickPanel />
+                    <LttPositionPickPanel />
                 </Item>
             </Content>
         </Container>
