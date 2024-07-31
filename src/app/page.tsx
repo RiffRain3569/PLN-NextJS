@@ -29,7 +29,7 @@ const Content = styled('div')`
 `;
 
 const Item = styled('div')`
-    width: 400px;
+    width: 768px;
     height: auto;
     padding: 40px;
 
@@ -78,7 +78,7 @@ const Home = (): ReactNode => {
         },
     });
 
-    const handleBuyLotto = async (dataList: null[]) => {
+    const handleBuyLotto = async (dataList: null[] | number[][]) => {
         setBuyResult('로딩중...');
         dhlBuyLottoMutation.mutate({ dataList });
     };
@@ -126,7 +126,7 @@ const Home = (): ReactNode => {
                             ))}
                         </div>
                     )}
-                    <LttPickPanel />
+                    <LttPickPanel buyLotto={handleBuyLotto} />
                     <LttPositionPickPanel />
                 </Item>
             </Content>
