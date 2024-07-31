@@ -10,8 +10,10 @@ interface LttPickAreaProps {
 }
 
 const Container = styled(Box)(() => ({
+    border: '1px solid black',
     display: 'flex',
     gap: '5px',
+    width: '332px',
     padding: '10px',
     flexWrap: 'wrap',
 }));
