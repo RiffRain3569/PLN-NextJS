@@ -60,10 +60,10 @@ export const POST = async (req) => {
         direct: `${readyData.direct}`,
         nBuyAmount: String(dataList.length * 1000),
         param: `[${dataList
-            .map((numStr, key) =>
+            .map((numList, key) =>
                 JSON.stringify({
-                    arrGameChoiceNum: numStr,
-                    genType: numStr === null ? '0' : '1',
+                    arrGameChoiceNum: numList === null ? null : numList.join(','),
+                    genType: numList === null ? '0' : '1',
                     alpabet: alpabet[key],
                 })
             )

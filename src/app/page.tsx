@@ -54,7 +54,7 @@ const Item = styled('div')`
 
 const Home = (): ReactNode => {
     const { uid, amount, setReset } = useDhl();
-    const [buyResult, setBuyResult] = useState('');
+    const [curBuyResult, setBuyResult] = useState('');
     const [message, setMessage] = useState('');
     const { register, handleSubmit } = useForm();
 
@@ -70,10 +70,10 @@ const Home = (): ReactNode => {
     });
 
     const dhlBuyLottoMutation = useMutation(dhlBuyLotto, {
-        onSuccess: (res: { message: string }) => {
+        onSuccess: (res: any) => {
             setBuyResult(res.message);
         },
-        onError: (error: { message: string }) => {
+        onError: (error: any) => {
             setBuyResult(error.message);
         },
     });
@@ -119,9 +119,9 @@ const Home = (): ReactNode => {
                     <Button variant='contained' onClick={() => handleBuyLotto([null, null, null, null, null])}>
                         5회 자동 구매
                     </Button>
-                    {buyResult && (
+                    {curBuyResult && (
                         <div>
-                            {buyResult.split(' ').map((str, key) => (
+                            {curBuyResult.split(' ').map((str, key) => (
                                 <div key={key}>{str}</div>
                             ))}
                         </div>
