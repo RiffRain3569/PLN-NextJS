@@ -7,8 +7,11 @@ import LttPickAreaContent from 'components/Content/LttPickAreaContent';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
+import { is_ban_patten } from 'utils/lotto';
 
-interface LttPositionPickPanelProps {}
+interface LttPositionPickPanelProps {
+    buyLotto?: (lttNums: number[][]) => void;
+}
 
 const Container = styled(Box)(() => ({
     display: 'flex',
@@ -23,11 +26,12 @@ const Content = styled(Box)(() => ({
     gap: '3px',
 }));
 
-const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({}) => {
+const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto }) => {
     const [curPos, setPos] = useState<number>(-1);
     const [curPosPicks, setPosPicks] = useRecoilState<number[][]>(posPicksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);
+    const [curIsBan, setIsBan] = useState<boolean>(true);
 
     const handleGenLttNums = () => {
         let result: number[][] = [];
@@ -44,6 +48,11 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({}) => {
                     return a;
                 }, [])
                 .sort((a, b) => a - b);
+
+            // 밴 패턴이면 추가 X
+            if (curIsBan && is_ban_patten(selectLtt)) {
+                continue;
+            }
 
             let isDuplicate = false;
             for (const lotto of result) {
@@ -85,6 +94,11 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({}) => {
                 </Button>
             </Box>
             <Box>
+                <Button variant='contained' onClick={() => setIsBan((s) => !s)}>
+                    {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}
+                </Button>
+            </Box>
+            <Box>
                 <Box style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Typography>생성 개수: </Typography>
@@ -106,6 +120,9 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({}) => {
                             {lttNum.map((num, colKey) => (
                                 <NumberButton key={colKey} number={num} />
                             ))}
+                            <Button variant='contained' onClick={() => buyLotto?.([lttNum])}>
+                                구매
+                            </Button>
                         </Content>
                     ))}
                 </>

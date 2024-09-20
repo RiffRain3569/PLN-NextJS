@@ -127,7 +127,9 @@ const Home = (): ReactNode => {
                         </div>
                     )}
                     <LttPickPanel buyLotto={handleBuyLotto} />
-                    <LttPositionPickPanel />
+                    {message && <div>{message}</div>}
+                    <LttPositionPickPanel buyLotto={handleBuyLotto} />
+                    {message && <div>{message}</div>}
                 </Item>
             </Content>
         </Container>
