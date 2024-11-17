@@ -1,9 +1,9 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { picksState } from '@store/lotto';
-import NumberButton from 'components/Button/NumberButton';
 import LttPickAreaContent from 'components/Content/LttPickAreaContent';
-import React, { useState, useEffect } from 'react';
+import NumberButton from 'components/ui/button/NumberButton';
+import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
 import { is_ban_patten } from 'utils/lotto';
@@ -79,7 +79,8 @@ const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
                         gap: '10px',
                         display: 'flex',
                         flexDirection: 'column',
-                    }}>
+                    }}
+                >
                     <Box>
                         <Button variant='contained' onClick={() => setIsBan((s) => !s)}>
                             {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}

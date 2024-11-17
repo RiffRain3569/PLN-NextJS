@@ -9,10 +9,10 @@ interface NumberButtonProps extends ButtonProps {
 
 const CircleButton = styled(Button)<{ selected?: boolean; tens: number }>(({ theme, selected, tens }) => ({
     borderRadius: '50%',
-    minWidth: '40px',
-    minHeight: '40px',
+    minWidth: '32px',
+    minHeight: '32px',
     padding: '0',
-    lineHeight: '40px',
+    lineHeight: '32px',
     fontSize: '1rem',
     backgroundColor: theme.palette[selected ? 'secondary' : `ltt${tens}x`]?.main,
     '&:hover': {

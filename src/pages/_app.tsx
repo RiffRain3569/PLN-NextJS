@@ -1,10 +1,10 @@
-'use client';
+/** @jsxImportSource @emotion/react */
 import { createTheme, ThemeProvider } from '@mui/material';
-import '@styles/globals.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ReactNode } from 'react';
+import { AppProps } from 'next/app';
 import { RecoilRoot } from 'recoil';
+import '../styles/globals.css'; // 글로벌 CSS 파일 (옵션)
 
 const queryClient = new QueryClient();
 
@@ -108,21 +108,17 @@ const theme = createTheme({
     },
 });
 
-const RootLayout = ({ children }: { children: ReactNode }): ReactNode => {
+function MyApp({ Component, pageProps }: AppProps) {
     return (
-        <html>
-            <head>
-                <title>PLN</title>
-            </head>
-            <body>
-                <QueryClientProvider client={queryClient}>
-                    <RecoilRoot>
-                        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-                        <ReactQueryDevtools initialIsOpen={false} />
-                    </RecoilRoot>
-                </QueryClientProvider>
-            </body>
-        </html>
+        <QueryClientProvider client={queryClient}>
+            <RecoilRoot>
+                <ThemeProvider theme={theme}>
+                    <Component {...pageProps} />
+                </ThemeProvider>
+                <ReactQueryDevtools initialIsOpen={false} />
+            </RecoilRoot>
+        </QueryClientProvider>
     );
-};
-export default RootLayout;
+}
+
+export default MyApp;

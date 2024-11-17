@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/system';
-import NumberButton from 'components/Button/NumberButton';
-import React, { useState, useEffect } from 'react';
+import NumberButton from 'components/ui/button/NumberButton';
+import React, { useEffect, useState } from 'react';
 import { isEqual } from 'utils/common';
 
 interface LttPickAreaProps {
