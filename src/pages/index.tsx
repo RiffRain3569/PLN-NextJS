@@ -71,8 +71,8 @@ const Page = () => {
 
     return (
         <View>
-            <div css={{ display: 'flex', width: '100%', gap: 8 }}>
-                <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            <div style={{ display: 'flex', width: '100%', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Item>
                         <div>동행복권 계정 로그인</div>
                         <Input
@@ -92,7 +92,7 @@ const Page = () => {
                         </Button>
                     </Item>
                 </div>
-                <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Item>
                         {message && <div>{message}</div>}
                         {uid && <div>{uid} 로그인 중</div>}

@@ -3,7 +3,7 @@ import React from 'react';
 const Header = () => {
     return (
         <header
-            css={{
+            style={{
                 position: 'sticky',
                 top: 0,
                 left: 0,
@@ -17,7 +17,7 @@ const Header = () => {
             }}
         >
             <div
-                css={{
+                style={{
                     height: '100%',
                     width: '1400px',
                     color: '#ffffff',
@@ -26,7 +26,7 @@ const Header = () => {
                 }}
             >
                 <div
-                    css={{
+                    style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 8,
@@ -36,7 +36,7 @@ const Header = () => {
                     <div>GNB</div>
                 </div>
                 <div
-                    css={{
+                    style={{
                         display: 'flex',
                         alignItems: 'center',
                     }}

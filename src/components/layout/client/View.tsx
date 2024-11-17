@@ -8,7 +8,7 @@ const View = ({ children }: { children: ReactNode }) => {
         <>
             <Header />
             <div
-                css={{
+                style={{
                     backgroundColor: '#242832',
                     display: 'flex',
                     flexDirection: 'column',
@@ -17,7 +17,7 @@ const View = ({ children }: { children: ReactNode }) => {
                 }}
             >
                 <main
-                    css={{
+                    style={{
                         width: '1400px',
                         display: 'flex',
                         flexDirection: 'column',
