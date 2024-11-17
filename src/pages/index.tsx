@@ -90,13 +90,13 @@ const Page = () => {
                         <Button variant='contained' onClick={handleSignIn}>
                             로그인
                         </Button>
+                        {message && <div>{message}</div>}
+                        {uid && <div>{uid} 로그인 중</div>}
+                        {amount && <div>보유 금액: {amount}</div>}
                     </Item>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Item>
-                        {message && <div>{message}</div>}
-                        {uid && <div>{uid} 로그인 중</div>}
-                        {amount && <div>보유 금액: {amount}</div>}
                         <Button variant='contained' onClick={() => handleBuyLotto([null])}>
                             1회 자동 구매
                         </Button>

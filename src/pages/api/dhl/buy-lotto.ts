@@ -1,7 +1,7 @@
-import { DH_SESSION } from '@constants/session';
 import axios from 'axios';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
-import qs from 'qs';
+
 // param: [
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'A' },
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'B' },
@@ -10,9 +10,9 @@ import qs from 'qs';
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'E' },
 // ],
 
-export const POST = async (req) => {
-    const dhSession = req.cookies.get(DH_SESSION)?.value;
-    const { dataList = [] } = await req.json();
+export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
+    const dhSession = req.cookies['dh_session'];
+    const { dataList = [] } = await req.body;
     const alpabet = ['A', 'B', 'C', 'D', 'E'];
 
     // 부가 데이터 가져오기
@@ -60,7 +60,7 @@ export const POST = async (req) => {
         direct: `${readyData.direct}`,
         nBuyAmount: String(dataList.length * 1000),
         param: `[${dataList
-            .map((numList, key) =>
+            .map((numList: any, key: any) =>
                 JSON.stringify({
                     arrGameChoiceNum: numList === null ? null : numList.join(','),
                     genType: numList === null ? '0' : '1',
@@ -74,9 +74,8 @@ export const POST = async (req) => {
     };
 
     console.log(body);
-    console.log(qs.stringify(body));
     const result = await axios
-        .post('https://www.dhlottery.co.kr/olotto/game/execBuy.do', qs.stringify(body), {
+        .post('https://www.dhlottery.co.kr/olotto/game/execBuy.do', new URLSearchParams(body).toString(), {
             headers: {
                 Cookie: `JSESSIONID=${dhSession}`,
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -93,3 +92,10 @@ export const POST = async (req) => {
         });
     return NextResponse.json(result);
 };
+export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    if (req.method === 'POST') {
+        await POST(req, res);
+    }
+};
+
+export default handler;

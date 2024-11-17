@@ -1,9 +1,9 @@
-import { DH_SESSION } from '@constants/session';
 import axios from 'axios';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
-export const POST = async (req) => {
-    const dhSession = req.cookies.get(DH_SESSION)?.value;
+export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
+    const dhSession = req.cookies['dh_session'];
 
     return await axios
         .get('https://dhlottery.co.kr/common.do?method=main', {
@@ -11,14 +11,14 @@ export const POST = async (req) => {
                 Cookie: `JSESSIONID=${dhSession}`,
             },
         })
-        .then((response) => {
+        .then((response: any) => {
             console.log('set-cookie', response.headers['set-cookie']);
             const resJsessionId = response.headers['set-cookie']
-                .find((item) => item.includes('JSESSIONID'))
+                .find((item: any) => item.includes('JSESSIONID'))
                 ?.split('JSESSIONID=')[1]
                 .split(';')[0];
             const resUid = response.headers['set-cookie']
-                .find((item) => item.includes('UID'))
+                .find((item: any) => item.includes('UID'))
                 ?.split('UID=')[1]
                 .split(';')[0];
             const amount = response.data
@@ -33,3 +33,11 @@ export const POST = async (req) => {
             return res;
         });
 };
+
+export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    if (req.method === 'POST') {
+        await POST(req, res);
+    }
+};
+
+export default handler;
