@@ -2,12 +2,14 @@
     "compilerOptions": {
         "target": "es2015",
         "jsx": "preserve",
+        "jsxImportSource": "@emotion/react",
         "strict": true,
         "baseUrl": "./src",
         "paths": {
             "@styles/*": ["styles/*"],
             "@apis/*": ["apis/*"],
             "@constants/*": ["constants/*"],
+            "@components/*": ["components/*"],
             "@store/*": ["store/*"],
             "@hooks/*": ["hooks/*"]
         },

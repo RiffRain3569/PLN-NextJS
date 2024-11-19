@@ -1,32 +1,28 @@
-import React from 'react';
-
-const Header = () => {
+const Header = ({ width, height }: { width?: string | number; height?: string | number }) => {
     return (
         <header
-            style={{
+            css={{
                 position: 'sticky',
                 top: 0,
                 left: 0,
-                height: 60,
-                background: '#303134',
+                width: '100%',
+                height: height ?? 60,
+                backgroundColor: '#303134',
                 zIndex: '100',
-
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
             }}
         >
             <div
-                style={{
+                css={{
                     height: '100%',
-                    width: '1400px',
-                    color: '#ffffff',
+                    width: width ?? 1400,
+                    margin: 'auto',
+                    backgroundColor: '#303134',
                     display: 'flex',
                     justifyContent: 'space-between',
                 }}
             >
                 <div
-                    style={{
+                    css={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 8,
@@ -36,7 +32,7 @@ const Header = () => {
                     <div>GNB</div>
                 </div>
                 <div
-                    style={{
+                    css={{
                         display: 'flex',
                         alignItems: 'center',
                     }}

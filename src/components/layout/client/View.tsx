@@ -1,33 +1,22 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
+import { GlobalTheme } from './GlobalTheme';
 import Header from './Header';
 
-// main color
-
 const View = ({ children }: { children: ReactNode }) => {
+    const width = '1400px';
+
     return (
         <>
-            <Header />
-            <div
-                style={{
-                    backgroundColor: '#242832',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    height: 'calc(100vh - 60px)',
+            <GlobalTheme />
+            <Header width={width} />
+            <main
+                css={{
+                    width: width,
+                    margin: 'auto',
                 }}
             >
-                <main
-                    style={{
-                        width: '1400px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        color: 'white',
-                    }}
-                >
-                    {children}
-                </main>
-            </div>
+                {children}
+            </main>
         </>
     );
 };

@@ -1,4 +1,5 @@
 import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
+import { V } from '@components/index';
 import useDhl from '@hooks/useDhl';
 import { Button, Input } from '@mui/material';
 import { styled } from '@mui/system';
@@ -71,9 +72,9 @@ const Page = () => {
 
     return (
         <View>
-            <div style={{ display: 'flex', width: '100%', gap: 8 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <Item>
+            <V.Row css={{ gap: 8 }}>
+                <V.Column css={{ width: 400 }}>
+                    <Item css={{ width: 400 }}>
                         <div>동행복권 계정 로그인</div>
                         <Input
                             type='text'
@@ -94,8 +95,8 @@ const Page = () => {
                         {uid && <div>{uid} 로그인 중</div>}
                         {amount && <div>보유 금액: {amount}</div>}
                     </Item>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                </V.Column>
+                <V.Column css={{ width: '100%' }}>
                     <Item>
                         <Button variant='contained' onClick={() => handleBuyLotto([null])}>
                             1회 자동 구매
@@ -115,8 +116,8 @@ const Page = () => {
                         <LttPositionPickPanel buyLotto={handleBuyLotto} />
                         {message && <div>{message}</div>}
                     </Item>
-                </div>
-            </div>
+                </V.Column>
+            </V.Row>
         </View>
     );
 };

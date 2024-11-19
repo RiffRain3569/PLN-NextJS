@@ -1,30 +1,60 @@
-import { Button, ButtonProps } from '@mui/material';
-import { styled } from '@mui/system';
-import React from 'react';
+import { HTMLAttributes } from 'react';
 
-interface NumberButtonProps extends ButtonProps {
+type Types = {
     number: number;
     selected?: boolean;
-}
+};
 
-const CircleButton = styled(Button)<{ selected?: boolean; tens: number }>(({ theme, selected, tens }) => ({
-    borderRadius: '50%',
-    minWidth: '32px',
-    minHeight: '32px',
-    padding: '0',
-    lineHeight: '32px',
-    fontSize: '1rem',
-    backgroundColor: theme.palette[selected ? 'secondary' : `ltt${tens}x`]?.main,
-    '&:hover': {
-        backgroundColor: theme.palette[selected ? 'secondary' : `ltt${tens}x`]?.dark,
+const theme = {
+    ltt0x: {
+        main: '#fbc400',
+        dark: '#7b1fa2',
+        contrastText: '#fff',
     },
-}));
-
-const NumberButton: React.FC<NumberButtonProps> = ({ number, sx, ...props }) => {
+    ltt1x: {
+        main: '#69c8f2',
+        dark: '#7b1fa2',
+        contrastText: '#fff',
+    },
+    ltt2x: {
+        main: '#ff7272',
+        dark: '#7b1fa2',
+        contrastText: '#fff',
+    },
+    ltt3x: {
+        main: '#aaa',
+        dark: '#7b1fa2',
+        contrastText: '#fff',
+    },
+    ltt4x: {
+        main: '#b0d840',
+        dark: '#7b1fa2',
+        contrastText: '#fff',
+    },
+};
+const NumberButton = ({ number, selected, children, style, ...props }: Types & HTMLAttributes<HTMLButtonElement>) => {
+    const tens = (Math.ceil(number / 10) - 1) as 1 | 2 | 3 | 4;
     return (
-        <CircleButton variant='contained' tens={Math.ceil(number / 10) - 1} {...props}>
+        <button
+            css={{
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                padding: '0',
+                lineHeight: '32px',
+                fontSize: '14px',
+                color: 'white',
+                textAlign: 'center',
+                backgroundColor: theme[`ltt${tens}x`]?.[selected ? 'dark' : 'main'],
+                '&:hover': {
+                    backgroundColor: theme[`ltt${tens}x`].dark,
+                },
+                ...style,
+            }}
+            {...props}
+        >
             {number}
-        </CircleButton>
+        </button>
     );
 };
 
