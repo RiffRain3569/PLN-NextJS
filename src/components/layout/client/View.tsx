@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { ReactNode } from 'react';
 import { GlobalTheme } from './GlobalTheme';
 import Header from './Header';
@@ -7,11 +8,17 @@ const View = ({ children }: { children: ReactNode }) => {
 
     return (
         <>
-            <GlobalTheme />
+            <Head>
+                <title>PLN</title>
+            </Head>
+
+            <GlobalTheme theme='light' />
+
             <Header width={width} />
+
             <main
                 css={{
-                    width: width,
+                    maxWidth: width,
                     margin: 'auto',
                 }}
             >

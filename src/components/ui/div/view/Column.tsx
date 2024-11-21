@@ -1,7 +1,10 @@
 import { ForwardedRef, forwardRef, HTMLAttributes } from 'react';
+import { FlexTypes } from '../type';
 
-export const Column = forwardRef((props: HTMLAttributes<HTMLDivElement>, ref: ForwardedRef<HTMLDivElement>) => {
-    const { children, style, ...rest } = props;
+type Types = FlexTypes & HTMLAttributes<HTMLDivElement>;
+
+export const Column = forwardRef((props: Types, ref: ForwardedRef<HTMLDivElement>) => {
+    const { children, gap, ...rest } = props;
 
     return (
         <div
@@ -10,9 +13,7 @@ export const Column = forwardRef((props: HTMLAttributes<HTMLDivElement>, ref: Fo
             css={{
                 position: 'relative',
                 display: 'flex',
-                width: '100%',
                 flexDirection: 'column',
-                ...style,
                 // '&:active': { opacity: (!!props.onClick && props?.touchOpacity) ?? 0.8 },
             }}
             {...rest}
@@ -21,3 +22,5 @@ export const Column = forwardRef((props: HTMLAttributes<HTMLDivElement>, ref: Fo
         </div>
     );
 });
+
+Column.displayName = 'VColumn';

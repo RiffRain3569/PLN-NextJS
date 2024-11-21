@@ -1,35 +1,31 @@
 import { dhlJsessionid } from '@apis/dhl/ssr';
-import { amountState, uidState } from '@store/dhlState';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { getCookie, getCookies } from 'cookies-next';
 import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
 
 const useDhl = () => {
-    const [uid, setUid] = useRecoilState(uidState);
-    const [amount, setAmount] = useRecoilState(amountState);
     const [curUid, setUidState] = useState('');
     const [curAmount, setAmountState] = useState('');
 
     const [reset, setReset] = useState(false);
 
-    const dhlSessionMutation = useMutation(dhlJsessionid, {
+    const queryData = useQuery({
+        queryKey: [''],
+        queryFn: dhlJsessionid,
         onSuccess: (res) => {
-            setUid(res.uid);
-            setAmount(res.amount);
+            setUidState(res.uid);
+            setAmountState(res.amount);
             setReset(false);
         },
+        enabled: !!getCookie('UID'),
     });
 
     useEffect(() => {
-        setUidState(uid);
-        setAmountState(amount);
-    }, [uid]);
-
-    useEffect(() => {
-        if (reset) {
-            dhlSessionMutation.mutate({});
+        console.log(getCookies());
+        if (reset || !!getCookie('UID')) {
+            queryData.refetch();
         }
-    }, [reset]);
+    }, [reset, !!getCookie('UID')]);
 
     return { uid: curUid, amount: curAmount, setReset };
 };

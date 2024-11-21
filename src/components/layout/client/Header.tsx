@@ -1,3 +1,7 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { colors } from './theme/colors';
+
 const Header = ({ width, height }: { width?: string | number; height?: string | number }) => {
     return (
         <header
@@ -7,28 +11,31 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                 left: 0,
                 width: '100%',
                 height: height ?? 60,
-                backgroundColor: '#303134',
+                backgroundColor: colors.red,
                 zIndex: '100',
             }}
         >
             <div
                 css={{
                     height: '100%',
-                    width: width ?? 1400,
+                    maxWidth: width ?? 1400,
                     margin: 'auto',
-                    backgroundColor: '#303134',
+                    backgroundColor: colors.red,
                     display: 'flex',
                     justifyContent: 'space-between',
+                    padding: '0 20px',
                 }}
             >
                 <div
                     css={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8,
+                        gap: 20,
                     }}
                 >
-                    <div>Logo</div>
+                    <Link href='/' css={{ display: 'flex' }}>
+                        <Image src='/favicon/favicon.svg' alt='logo' width={40} height={40} />
+                    </Link>
                     <div>GNB</div>
                 </div>
                 <div

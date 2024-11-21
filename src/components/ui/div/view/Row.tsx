@@ -1,7 +1,10 @@
 import { ForwardedRef, forwardRef, HTMLAttributes } from 'react';
+import { FlexTypes } from '../type';
 
-export const Row = forwardRef((props: HTMLAttributes<HTMLDivElement>, ref: ForwardedRef<HTMLDivElement>) => {
-    const { children, style, ...rest } = props;
+type Types = FlexTypes & HTMLAttributes<HTMLDivElement>;
+
+export const Row = forwardRef((props: Types, ref: ForwardedRef<HTMLDivElement>) => {
+    const { children, ...rest } = props;
 
     return (
         <div
@@ -10,7 +13,6 @@ export const Row = forwardRef((props: HTMLAttributes<HTMLDivElement>, ref: Forwa
             css={{
                 position: 'relative',
                 display: 'flex',
-                ...style,
                 // '&:active': { opacity: (!!props.onClick && props?.touchOpacity) ?? 0.8 },
             }}
             {...rest}

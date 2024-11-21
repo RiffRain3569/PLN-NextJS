@@ -1,6 +1,6 @@
 import { Global, css } from '@emotion/react';
 
-export function GlobalTheme() {
+export function GlobalTheme({ theme = 'light' }: { theme: 'light' | 'dark' }) {
     return (
         <Global
             styles={css`
@@ -26,6 +26,7 @@ export function GlobalTheme() {
                     // background-color: transparent;
                     // outline: none;
                     border: none;
+                    cursor: pointer;
                     // color: #4e4e51;
                     // transition: all 0.3s ease-in-out;
                 }
