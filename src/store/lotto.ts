@@ -16,3 +16,9 @@ export const posPicksState = atom({
     default: [[], [], [], [], [], []],
     effects_UNSTABLE: [persistAtom],
 });
+
+export const savePickState = atom<number[][]>({
+    key: `savePickState`,
+    default: [[1, 2, 3, 4, 5, 6]],
+    effects_UNSTABLE: [persistAtom],
+});

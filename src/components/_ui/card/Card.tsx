@@ -1,3 +1,4 @@
+import { colors } from '@components/_layout/client/theme/colors';
 import { css } from '@emotion/react';
 import { HTMLAttributes, ReactNode } from 'react';
 import { V } from '../div/V';
@@ -19,7 +20,7 @@ export const Card = (props: Types) => {
                 flex-direction: column;
                 gap: 20px;
 
-                background: #352630;
+                background: ${colors.background2};
 
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
                 @media (max-width: 768px) {

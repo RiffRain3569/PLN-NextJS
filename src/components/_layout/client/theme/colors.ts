@@ -6,7 +6,7 @@ export const colors = {
 
     header: '#590016',
     background: '#24171D', //'#2A2A2A',
-    background2: '#2A2A2A',
+    background2: '#352630',
 
     text: '#fae3cf',
     line: '#4A3F47',
