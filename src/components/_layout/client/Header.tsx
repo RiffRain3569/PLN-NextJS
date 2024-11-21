@@ -1,3 +1,4 @@
+import Txt from '@components/_ui/typography/Txt';
 import Image from 'next/image';
 import Link from 'next/link';
 import { colors } from './theme/colors';
@@ -11,7 +12,8 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                 left: 0,
                 width: '100%',
                 height: height ?? 60,
-                backgroundColor: colors.red,
+                backgroundColor: colors.header,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
                 zIndex: '100',
             }}
         >
@@ -20,7 +22,7 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                     height: '100%',
                     maxWidth: width ?? 1400,
                     margin: 'auto',
-                    backgroundColor: colors.red,
+                    backgroundColor: colors.header,
                     display: 'flex',
                     justifyContent: 'space-between',
                     padding: '0 20px',
@@ -36,7 +38,26 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                     <Link href='/' css={{ display: 'flex' }}>
                         <Image src='/favicon/favicon.svg' alt='logo' width={40} height={40} />
                     </Link>
-                    <div>GNB</div>
+                    <Link href='/components/card'>
+                        <Txt size={16} weight='bold'>
+                            Cards
+                        </Txt>
+                    </Link>
+                    <Link href='/components/table'>
+                        <Txt size={16} weight='bold'>
+                            Tables
+                        </Txt>
+                    </Link>
+                    <Link href='/components/input'>
+                        <Txt size={16} weight='bold'>
+                            Inputs
+                        </Txt>
+                    </Link>
+                    <Link href='/components/icon'>
+                        <Txt size={16} weight='bold'>
+                            Icons
+                        </Txt>
+                    </Link>
                 </div>
                 <div
                     css={{
@@ -44,7 +65,9 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                         alignItems: 'center',
                     }}
                 >
-                    <div>Profile</div>
+                    <Txt size={16} weight='bold'>
+                        Profile
+                    </Txt>
                 </div>
             </div>
         </header>

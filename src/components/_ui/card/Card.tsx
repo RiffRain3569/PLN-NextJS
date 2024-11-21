@@ -6,7 +6,7 @@ import Txt from '../typography/Txt';
 type Types = {
     title?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
-export const BasicBox = (props: Types) => {
+export const Card = (props: Types) => {
     const { children, title, ...rest } = props;
 
     return (
@@ -19,8 +19,9 @@ export const BasicBox = (props: Types) => {
                 flex-direction: column;
                 gap: 20px;
 
-                background: #4d5156;
+                background: #352630;
 
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
                 @media (max-width: 768px) {
                     width: 100%;
                 }
@@ -33,4 +34,4 @@ export const BasicBox = (props: Types) => {
     );
 };
 
-export default BasicBox;
+export default Card;

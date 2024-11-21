@@ -3,9 +3,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+import { ReactNode } from 'react';
 import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient();
+
+const Wrapped = ({ children }: { children: ReactNode }) => {
+    return <>{children}</>;
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
@@ -20,7 +25,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <link rel='manifest' href='/favicon/site.webmanifest' />
                     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
                 </Head>
-                <Component {...pageProps} />
+                <Wrapped>
+                    <Component {...pageProps} />
+                </Wrapped>
                 <ReactQueryDevtools initialIsOpen={false} />
             </RecoilRoot>
         </QueryClientProvider>

@@ -12,7 +12,7 @@ const View = ({ children }: { children: ReactNode }) => {
                 <title>PLN</title>
             </Head>
 
-            <GlobalTheme theme='light' />
+            <GlobalTheme />
 
             <Header width={width} />
 

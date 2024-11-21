@@ -1,7 +1,9 @@
-import { Box, Typography } from '@mui/material';
+import NumberButton from '@components/_ui/button/NumberButton';
+import { V } from '@components/_ui/div/V';
+import Txt from '@components/_ui/typography/Txt';
+import { Box } from '@mui/material';
 import { styled } from '@mui/system';
-import NumberButton from 'components/ui/button/NumberButton';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isEqual } from 'utils/common';
 
 interface LttPickAreaProps {
@@ -10,15 +12,13 @@ interface LttPickAreaProps {
 }
 
 const Container = styled(Box)(() => ({
-    border: '1px solid black',
     display: 'flex',
     gap: '5px',
     width: '332px',
-    padding: '10px',
     flexWrap: 'wrap',
 }));
 
-const LttPickAreaContent: React.FC<LttPickAreaProps> = ({ setValue, onChange }) => {
+const LttPickAreaContent = ({ setValue, onChange }: LttPickAreaProps) => {
     const [curPicks, setPicks] = useState<number[]>([]);
 
     useEffect(() => {
@@ -40,7 +40,7 @@ const LttPickAreaContent: React.FC<LttPickAreaProps> = ({ setValue, onChange }) 
     };
 
     return (
-        <Container>
+        <V.Row css={{ width: `calc(37px * 7)`, flexWrap: 'wrap', gap: 5 }}>
             {[...Array(45).keys()].map((num, key) => (
                 <NumberButton
                     key={key}
@@ -49,8 +49,8 @@ const LttPickAreaContent: React.FC<LttPickAreaProps> = ({ setValue, onChange }) 
                     selected={curPicks.includes(num + 1)}
                 />
             ))}
-            <Typography>{curPicks.length} selected</Typography>
-        </Container>
+            <Txt>{curPicks.length} selected</Txt>
+        </V.Row>
     );
 };
 

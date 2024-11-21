@@ -1,9 +1,9 @@
+import NumberButton from '@components/_ui/button/NumberButton';
+import PositionButton from '@components/_ui/button/PositionButton';
+import LttPickAreaContent from '@components/client/home/LttPickAreaContent';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { posPicksState } from '@store/lotto';
-import LttPickAreaContent from 'components/Content/LttPickAreaContent';
-import NumberButton from 'components/ui/button/NumberButton';
-import PositionButton from 'components/ui/button/PositionButton';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';

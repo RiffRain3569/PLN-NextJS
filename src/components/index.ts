@@ -1,6 +1,6 @@
-import BasicBox from './ui/box/BasicBox';
-import NumberButton from './ui/button/NumberButton';
-import { V } from './ui/div/V';
-import Txt from './ui/typography/Txt';
+import NumberButton from './_ui/button/NumberButton';
+import Card from './_ui/card/Card';
+import { V } from './_ui/div/V';
+import Txt from './_ui/typography/Txt';
 
-export { BasicBox, NumberButton, Txt, V };
+export { Card, NumberButton, Txt, V };

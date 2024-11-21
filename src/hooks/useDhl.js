@@ -10,7 +10,7 @@ const useDhl = () => {
     const [reset, setReset] = useState(false);
 
     const queryData = useQuery({
-        queryKey: [''],
+        queryKey: ['session'],
         queryFn: dhlJsessionid,
         onSuccess: (res) => {
             setUidState(res.uid);
