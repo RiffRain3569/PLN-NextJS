@@ -28,7 +28,11 @@ export const Card = (props: Types) => {
             `}
             {...rest}
         >
-            {!!title && <Txt>{title}</Txt>}
+            {!!title && (
+                <Txt size={16} weight={'bold'}>
+                    {title}
+                </Txt>
+            )}
             {children}
         </V.Column>
     );

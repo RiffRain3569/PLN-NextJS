@@ -3,10 +3,9 @@ import { ButtonHTMLAttributes } from 'react';
 
 type Types = {
     color?: 'primary' | 'secondary';
-} & ButtonHTMLAttributes<HTMLButtonElement>;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'>;
 
-const Button = (props: Types) => {
-    const { color = 'primary' } = props;
+const Button = ({ color = 'primary', ...props }: Types) => {
     return (
         <button
             css={{

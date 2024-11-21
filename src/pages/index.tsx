@@ -3,7 +3,7 @@ import View from '@components/_layout/client/View';
 import Button from '@components/_ui/button/Button';
 import Spinner from '@components/_ui/custom/Spinner';
 import { Input } from '@components/_ui/input/Input';
-import { Card, Txt, V } from '@components/index';
+import { Card, V } from '@components/index';
 import useDhl from '@hooks/useDhl';
 import { useMutation } from '@tanstack/react-query';
 import { KeyboardEvent, useState } from 'react';
@@ -54,10 +54,7 @@ const Page = () => {
     return (
         <View>
             <V.Row css={{ gap: 10, margin: '10px 0', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                <Card css={{ width: 400 }}>
-                    <div>
-                        <Txt>동행복권 계정 로그인</Txt>
-                    </div>
+                <Card title='동행복권 계정 로그인' css={{ width: 400 }}>
                     <Input>
                         <Input.TextField
                             placeholder='ID'

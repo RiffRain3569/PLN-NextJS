@@ -2,7 +2,7 @@ import { Children, cloneElement, LabelHTMLAttributes, useId } from 'react';
 import { TextField } from './TextField';
 
 export function Input(props: LabelHTMLAttributes<HTMLLabelElement>) {
-    const child = Children.only(props.children);
+    const child = Children.only(props.children) as any;
 
     const id = child.props.id ?? useId();
 
