@@ -1,7 +1,6 @@
-import NumberButton from '@components/_ui/button/NumberButton';
-import PositionButton from '@components/_ui/button/PositionButton';
-import LttPickAreaContent from '@components/client/home/LttPickAreaContent';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Button, NumberButton, PositionButton } from '@components/_ui';
+import LttPickAreaContent from '@components/_ui/custom/LttPick';
+import { Box, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { posPicksState } from '@store/lotto';
 import React, { useState } from 'react';
@@ -77,7 +76,7 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
             <Box>위치별 선택한 번호 범위의 랜덤 번호 생성</Box>
             {curPos >= 0 && curPos <= 6 && (
                 <LttPickAreaContent
-                    setValue={curPosPicks[curPos]}
+                    values={curPosPicks[curPos]}
                     onChange={(picks) => {
                         setPosPicks((s) => [...s.slice(0, curPos), picks, ...s.slice(curPos + 1)]);
                     }}
@@ -89,14 +88,10 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
                 ))}
             </Box>
             <Box style={{ display: 'flex', gap: '3px', padding: '0 10px' }}>
-                <Button variant='contained' onClick={() => setPosPicks([[], [], [], [], [], []])}>
-                    초기화
-                </Button>
+                <Button onClick={() => setPosPicks([[], [], [], [], [], []])}>초기화</Button>
             </Box>
             <Box>
-                <Button variant='contained' onClick={() => setIsBan((s) => !s)}>
-                    {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}
-                </Button>
+                <Button onClick={() => setIsBan((s) => !s)}>{curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}</Button>
             </Box>
             <Box>
                 <Box style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -108,9 +103,7 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
                             defaultValue={1}
                         />
                     </Box>
-                    <Button variant='contained' onClick={handleGenLttNums}>
-                        고른 번호 중 랜덤 선택
-                    </Button>
+                    <Button onClick={handleGenLttNums}>고른 번호 중 랜덤 선택</Button>
                 </Box>
             </Box>
             {curLttNums.length > 0 && (
@@ -120,9 +113,7 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
                             {lttNum.map((num, colKey) => (
                                 <NumberButton key={colKey} number={num} />
                             ))}
-                            <Button variant='contained' onClick={() => buyLotto?.([lttNum])}>
-                                구매
-                            </Button>
+                            <Button onClick={() => buyLotto?.([lttNum])}>구매</Button>
                         </Content>
                     ))}
                 </>

@@ -2,13 +2,13 @@ import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
 import View from '@components/_layout/client/View';
 import Button from '@components/_ui/button/Button';
 import Spinner from '@components/_ui/custom/Spinner';
+import { Card, V } from '@components/_ui/index';
 import { Input } from '@components/_ui/input/Input';
-import { Card, V } from '@components/index';
 import useDhl from '@hooks/useDhl';
 import { useMutation } from '@tanstack/react-query';
 import { KeyboardEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import LttPickPanel from '../components/client/home/LttPickPanel';
+import LttPickCard from '../components/client/home/LttPickCard';
 import LttPositionPickPanel from '../components/client/home/LttPositionPickPanel';
 
 const Page = () => {
@@ -70,7 +70,9 @@ const Page = () => {
                             onKeyUp={handleKeyUp}
                         />
                     </Input>
-                    <Button onClick={handleSignIn}>로그인</Button>
+                    <Button onClick={handleSignIn} loading={dhlSignInMutation.isLoading}>
+                        로그인
+                    </Button>
                     {isLoading && <Spinner />}
                     {message && <div>{message}</div>}
                     {uid && <div>{uid} 로그인 중</div>}
@@ -90,7 +92,7 @@ const Page = () => {
                             ))}
                         </div>
                     )}
-                    <LttPickPanel buyLotto={handleBuyLotto} />
+                    <LttPickCard buyLotto={handleBuyLotto} />
                 </Card>
                 <Card css={{ width: 400 }}>
                     <LttPositionPickPanel buyLotto={handleBuyLotto} />

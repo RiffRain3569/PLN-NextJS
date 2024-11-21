@@ -1,9 +1,11 @@
-import NumberButton from '@components/_ui/button/NumberButton';
-import LttPickAreaContent from '@components/client/home/LttPickAreaContent';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { NumberButton, Txt } from '@components/_ui';
+import Button from '@components/_ui/button/Button';
+import LttPickAreaContent from '@components/_ui/custom/LttPick';
+import { Input } from '@components/_ui/input/Input';
+import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { picksState } from '@store/lotto';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
 import { is_ban_patten } from 'utils/lotto';
@@ -25,7 +27,7 @@ const Content = styled(Box)(() => ({
     gap: '3px',
 }));
 
-const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
+const LttPickCard = ({ buyLotto }: LttPickPanelProps) => {
     const [curPicks, setPicks] = useRecoilState<number[]>(picksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);
@@ -82,7 +84,7 @@ const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
                     }}
                 >
                     <Box>
-                        <Button variant='contained' onClick={() => setIsBan((s) => !s)}>
+                        <Button onClick={() => setIsBan((s) => !s)}>
                             {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}
                         </Button>
                     </Box>
@@ -91,14 +93,16 @@ const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
 
             <Box style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box style={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography>생성 개수: </Typography>
-                    <TextField
-                        style={{ width: '50px' }}
-                        onChange={(e) => setRandomCnt(Number(e.target.value))}
-                        defaultValue={1}
-                    />
+                    <Txt>생성 개수: </Txt>
+                    <Input>
+                        <Input.TextField
+                            type='number'
+                            onChange={(e) => setRandomCnt(Number(e.target.value))}
+                            defaultValue={1}
+                        />
+                    </Input>
                 </Box>
-                <Button variant='contained' onClick={handleGenLttNums} disabled={curPicks.length < 6}>
+                <Button onClick={handleGenLttNums} disabled={curPicks.length < 6}>
                     고른 번호 중 랜덤 선택
                 </Button>
             </Box>
@@ -110,9 +114,7 @@ const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
                                 {lttNum.map((num, colKey) => (
                                     <NumberButton key={colKey} number={num} />
                                 ))}
-                                <Button variant='contained' onClick={() => buyLotto?.([lttNum])}>
-                                    구매
-                                </Button>
+                                <Button onClick={() => buyLotto?.([lttNum])}>구매</Button>
                             </Content>
                         ))}
                     </>
@@ -122,4 +124,4 @@ const LttPickPanel: React.FC<LttPickPanelProps> = ({ buyLotto }) => {
     );
 };
 
-export default LttPickPanel;
+export default LttPickCard;

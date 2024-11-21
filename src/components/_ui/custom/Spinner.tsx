@@ -1,13 +1,20 @@
-import { Oval } from 'react-loader-spinner'
+import { colors } from '@components/_layout/client/theme/colors';
+import { Oval, OvalProps } from 'react-loader-spinner';
 
-export default function Spinner({ size = 25, dark, ...props }: any) {
+type Types = {
+    size?: number;
+} & OvalProps;
+
+export default function Spinner({ size = 25, ...props }: Types) {
     return (
         <Oval
             height={size}
             width={size}
+            strokeWidth={5}
+            strokeWidthSecondary={7}
+            color={colors.primary.dark}
+            secondaryColor={colors.text}
             {...props}
-            color={dark ? '#ddd' : '#353535'}
-            secondaryColor={dark ? '#fff' : '#5d5d5d'}
         />
-    )
+    );
 }
