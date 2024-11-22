@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { colors } from './theme/colors';
-
 const Header = ({ width, height }: { width?: string | number; height?: string | number }) => {
     const router = useRouter();
     return (
@@ -61,8 +60,18 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                     css={{
                         display: 'flex',
                         alignItems: 'center',
+                        gap: 20,
                     }}
                 >
+                    <Link href={'/cart'}>
+                        <Txt
+                            size={16}
+                            weight={router.pathname === '/cart' ? 'bold' : 'normal'}
+                            css={{ '&:hover': { fontWeight: 'bold' } }}
+                        >
+                            Cart
+                        </Txt>
+                    </Link>
                     <Link href={'/mypage'}>
                         <Txt
                             size={16}

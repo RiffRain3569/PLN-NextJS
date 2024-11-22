@@ -1,7 +1,10 @@
 import { LttPick, NumberButton, Panel, V } from '@components/_ui';
 import Button from '@components/_ui/button/Button';
+import IconButton from '@components/_ui/button/IconButton';
+import Divider from '@components/_ui/custom/Divider';
 import { Input } from '@components/_ui/input/Input';
-import { picksState } from '@store/lotto';
+import AddShoppingCartOutlinedIcon from '@mui/icons-material/AddShoppingCartOutlined';
+import { picksState, savePickState } from '@store/lotto';
 import { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
@@ -12,6 +15,7 @@ interface LttPickPanelProps {
 }
 
 const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
+    const [curSavePick, setSavePick] = useRecoilState<number[][]>(savePickState);
     const [curPicks, setPicks] = useRecoilState<number[]>(picksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);
@@ -81,13 +85,24 @@ const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
                     {curLttNums.length > 0 && (
                         <>
                             {curLttNums.map((lttNum, rowKey) => (
-                                <V.Row key={rowKey} css={{ gap: 8 }}>
+                                <V.Row key={rowKey} css={{ gap: 8, alignItems: 'center' }}>
                                     {lttNum.map((num, colKey) => (
-                                        <NumberButton key={colKey} number={num} />
+                                        <NumberButton key={colKey} number={num} disabled />
                                     ))}
-                                    <Button onClick={() => buyLotto?.([lttNum])} css={{ width: 'auto' }}>
-                                        구매
-                                    </Button>
+                                    <Divider css={{ margin: '0 8px', height: '40px' }} />
+                                    <IconButton
+                                        onClick={() => {
+                                            if (curSavePick.length >= 5) {
+                                                alert('장바구니에서 제거 후 다시 클릭하세요');
+                                            } else {
+                                                alert(`담은 개수: ${curSavePick.length + 1} 개`);
+                                                setSavePick((s) => s.concat([lttNum]));
+                                            }
+                                            // buyLotto?.([lttNum]);
+                                        }}
+                                        css={{ width: 'auto' }}
+                                        Icon={AddShoppingCartOutlinedIcon}
+                                    />
                                 </V.Row>
                             ))}
                         </>

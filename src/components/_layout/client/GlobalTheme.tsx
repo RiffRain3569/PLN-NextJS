@@ -14,7 +14,7 @@ const style = css`
         padding: 0;
         margin: 0;
         font-family: sans-serif;
-        font-size: 0.875rem;
+        font-size: 1rem;
         color: ${colors.text};
     }
 
@@ -34,7 +34,7 @@ const style = css`
         align-items: center;
 
         color: ${colors.text};
-        line-height: 0.875rem;
+        line-height: 1rem;
         transition: background-color 0.3s ease;
     }
 
@@ -44,7 +44,7 @@ const style = css`
     input {
         background: none;
         color: ${colors.text};
-        font-size: 0.875rem;
+        font-size: 1rem;
         border: none;
         width: 100%;
     }

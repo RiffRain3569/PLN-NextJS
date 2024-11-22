@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import { ButtonHTMLAttributes } from 'react';
 
 type Types = {
     number: number;
@@ -42,7 +42,7 @@ const theme = {
         contrastText: '#fff',
     },
 };
-const NumberButton = ({ number, selected, children, ...props }: Types & HTMLAttributes<HTMLButtonElement>) => {
+const NumberButton = ({ number, selected, children, ...props }: Types & ButtonHTMLAttributes<HTMLButtonElement>) => {
     const tens = (Math.ceil(number / 10) - 1) as 1 | 2 | 3 | 4;
     const targetColor = selected ? theme['selected'] : theme[`ltt${tens}x`];
     return (
@@ -62,6 +62,10 @@ const NumberButton = ({ number, selected, children, ...props }: Types & HTMLAttr
 
                 '&:hover': {
                     background: `radial-gradient(circle at left top, ${theme['hovered'].main}, ${theme['hovered'].dark})`,
+                },
+
+                '&:disabled': {
+                    background: `radial-gradient(circle at left top, ${targetColor.main}, ${targetColor.dark})`,
                 },
             }}
             {...props}
