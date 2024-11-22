@@ -15,13 +15,6 @@ const Button = ({ color = 'primary', loading, disabled, ...props }: Types) => {
                 minHeight: '40px',
                 padding: '6px 16px',
                 backgroundColor: colors[color].main,
-                lineHeight: '14px',
-                fontSize: '14px',
-
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
 
                 '&:hover': {
                     backgroundColor: colors[color].dark,

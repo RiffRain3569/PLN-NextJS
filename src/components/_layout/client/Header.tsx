@@ -1,9 +1,11 @@
 import Txt from '@components/_ui/typography/Txt';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { colors } from './theme/colors';
 
 const Header = ({ width, height }: { width?: string | number; height?: string | number }) => {
+    const router = useRouter();
     return (
         <header
             css={{
@@ -35,29 +37,25 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                         gap: 20,
                     }}
                 >
-                    <Link href='/' css={{ display: 'flex' }}>
+                    <Link href='/' css={{ display: 'flex', marginRight: 20 }}>
                         <Image src='/favicon/favicon.svg' alt='logo' width={40} height={40} />
                     </Link>
-                    <Link href='/components/card'>
-                        <Txt size={16} weight='bold'>
-                            Cards
-                        </Txt>
-                    </Link>
-                    <Link href='/components/table'>
-                        <Txt size={16} weight='bold'>
-                            Tables
-                        </Txt>
-                    </Link>
-                    <Link href='/components/input'>
-                        <Txt size={16} weight='bold'>
-                            Inputs
-                        </Txt>
-                    </Link>
-                    <Link href='/components/icon'>
-                        <Txt size={16} weight='bold'>
-                            Icons
-                        </Txt>
-                    </Link>
+                    {[
+                        { path: '/components/card', value: 'Cards' },
+                        { path: '/components/table', value: 'Tables' },
+                        { path: '/components/input', value: 'Inputs' },
+                        { path: '/components/icon', value: 'Icons' },
+                    ].map((el, idx) => (
+                        <Link href={el.path} css={{ width: 60 }} key={idx}>
+                            <Txt
+                                size={16}
+                                weight={router.pathname === el.path ? 'bold' : 'normal'}
+                                css={{ '&:hover': { fontWeight: 'bold' } }}
+                            >
+                                {el.value}
+                            </Txt>
+                        </Link>
+                    ))}
                 </div>
                 <div
                     css={{
@@ -65,9 +63,15 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                         alignItems: 'center',
                     }}
                 >
-                    <Txt size={16} weight='bold'>
-                        Profile
-                    </Txt>
+                    <Link href={'/mypage'}>
+                        <Txt
+                            size={16}
+                            weight={router.pathname === '/mypage' ? 'bold' : 'normal'}
+                            css={{ '&:hover': { fontWeight: 'bold' } }}
+                        >
+                            Profile
+                        </Txt>
+                    </Link>
                 </div>
             </div>
         </header>

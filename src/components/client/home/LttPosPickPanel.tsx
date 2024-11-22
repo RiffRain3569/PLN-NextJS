@@ -1,7 +1,6 @@
-import { Button, NumberButton, PositionButton } from '@components/_ui';
+import { Button, NumberButton, Panel, PositionButton, V } from '@components/_ui';
 import LttPickAreaContent from '@components/_ui/custom/LttPick';
-import { Box, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { Input } from '@components/_ui/input/Input';
 import { posPicksState } from '@store/lotto';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -12,20 +11,7 @@ interface LttPositionPickPanelProps {
     buyLotto?: (lttNums: number[][]) => void;
 }
 
-const Container = styled(Box)(() => ({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    border: '1px solid #000',
-}));
-
-const Content = styled(Box)(() => ({
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '3px',
-}));
-
-const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto }) => {
+const LttPosPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto }) => {
     const [curPos, setPos] = useState<number>(-1);
     const [curPosPicks, setPosPicks] = useRecoilState<number[][]>(posPicksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
@@ -72,8 +58,7 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
 
     const allPicks = curPosPicks.filter((x) => x.length > 0).length === 6;
     return (
-        <Container>
-            <Box>위치별 선택한 번호 범위의 랜덤 번호 생성</Box>
+        <Panel title='위치별 선택한 번호 범위의 랜덤 번호 생성' css={{ width: 400 }}>
             {curPos >= 0 && curPos <= 6 && (
                 <LttPickAreaContent
                     values={curPosPicks[curPos]}
@@ -82,44 +67,45 @@ const LttPositionPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto })
                     }}
                 />
             )}
-            <Box style={{ display: 'flex', gap: '3px', padding: '10px' }}>
+            <V.Row style={{ display: 'flex', gap: '3px', padding: '10px' }}>
                 {Array.from(Array(6).keys()).map((num, key) => (
                     <PositionButton key={key} number={num + 1} onClick={() => setPos(num)} selected={num === curPos} />
                 ))}
-            </Box>
-            <Box style={{ display: 'flex', gap: '3px', padding: '0 10px' }}>
+            </V.Row>
+            <V.Row style={{ display: 'flex', gap: '3px', padding: '0 10px' }}>
                 <Button onClick={() => setPosPicks([[], [], [], [], [], []])}>초기화</Button>
-            </Box>
-            <Box>
+            </V.Row>
+            <V.Row>
                 <Button onClick={() => setIsBan((s) => !s)}>{curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}</Button>
-            </Box>
-            <Box>
-                <Box style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Box style={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography>생성 개수: </Typography>
-                        <TextField
-                            style={{ width: '50px' }}
+            </V.Row>
+            <V.Row>
+                <V.Row style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Input label='생성 개수' css={{ width: 100 }}>
+                        <Input.TextField
+                            type='number'
                             onChange={(e) => setRandomCnt(Number(e.target.value))}
                             defaultValue={1}
+                            min={0}
+                            max={100}
                         />
-                    </Box>
+                    </Input>
                     <Button onClick={handleGenLttNums}>고른 번호 중 랜덤 선택</Button>
-                </Box>
-            </Box>
+                </V.Row>
+            </V.Row>
             {curLttNums.length > 0 && (
                 <>
                     {curLttNums.map((lttNum, rowKey) => (
-                        <Content key={rowKey}>
+                        <V.Row key={rowKey} css={{ gap: 8 }}>
                             {lttNum.map((num, colKey) => (
                                 <NumberButton key={colKey} number={num} />
                             ))}
                             <Button onClick={() => buyLotto?.([lttNum])}>구매</Button>
-                        </Content>
+                        </V.Row>
                     ))}
                 </>
             )}
-        </Container>
+        </Panel>
     );
 };
 
-export default LttPositionPickPanel;
+export default LttPosPickPanel;

@@ -1,26 +1,18 @@
-import { colors } from '@components/_layout/client/theme/colors';
-import { css } from '@emotion/react';
 import { Children, cloneElement, LabelHTMLAttributes, useId } from 'react';
+import Txt from '../typography/Txt';
 import { TextField } from './TextField';
 
-export function Input(props: LabelHTMLAttributes<HTMLLabelElement>) {
+type Types = {
+    label?: string;
+} & LabelHTMLAttributes<HTMLLabelElement>;
+export function Input({ label, ...props }: Types) {
     const child = Children.only(props.children) as any;
 
     const id = child.props.id ?? useId();
 
     return (
-        <label
-            htmlFor={id}
-            css={css`
-                input {
-                    background: none;
-                    color: ${colors.text};
-                    border: none;
-                    border-bottom: 1px solid ${colors.text};
-                }
-            `}
-            {...props}
-        >
+        <label htmlFor={id} {...props}>
+            {!!label && <Txt css={{ marginBottom: 4 }}>{label}</Txt>}
             {cloneElement(child, { id, ...child.props })}
         </label>
     );

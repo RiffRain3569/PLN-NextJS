@@ -4,8 +4,9 @@ import { colors } from './theme/colors';
 const style = css`
     html,
     body {
+        margin: 0;
+        padding: 0;
         background-color: ${colors.background};
-        color: ${colors.text};
     }
 
     * {
@@ -13,6 +14,8 @@ const style = css`
         padding: 0;
         margin: 0;
         font-family: sans-serif;
+        font-size: 0.875rem;
+        color: ${colors.text};
     }
 
     a {
@@ -21,10 +24,41 @@ const style = css`
     }
 
     button {
+        user-select: none;
         border: none;
         cursor: pointer;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
         color: ${colors.text};
+        line-height: 0.875rem;
         transition: background-color 0.3s ease;
+    }
+
+    label {
+        width: 100%;
+    }
+    input {
+        background: none;
+        color: ${colors.text};
+        font-size: 0.875rem;
+        border: none;
+        width: 100%;
+    }
+
+    strong,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        margin: 0;
+        padding: 0;
     }
 
     // @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css');
@@ -67,18 +101,6 @@ const style = css`
     //     #layout {
     //         height: -webkit-fill-available;
     //     }
-    // }
-
-    // strong,
-    // h1,
-    // h2,
-    // h3,
-    // h4,
-    // h5,
-    // h6,
-    // p {
-    //     margin: 0;
-    //     padding: 0;
     // }
 
     // a {

@@ -1,15 +1,14 @@
 import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
 import View from '@components/_layout/client/View';
 import Button from '@components/_ui/button/Button';
-import Spinner from '@components/_ui/custom/Spinner';
-import { Card, V } from '@components/_ui/index';
+import { Panel, V } from '@components/_ui/index';
 import { Input } from '@components/_ui/input/Input';
+import LttPickPanel from '@components/client/home/LttPickPanel';
 import useDhl from '@hooks/useDhl';
 import { useMutation } from '@tanstack/react-query';
 import { KeyboardEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import LttPickCard from '../components/client/home/LttPickCard';
-import LttPositionPickPanel from '../components/client/home/LttPositionPickPanel';
+import LttPosPickPanel from '../components/client/home/LttPosPickPanel';
 
 const Page = () => {
     const { uid, amount, setReset } = useDhl();
@@ -48,13 +47,13 @@ const Page = () => {
             handleSignIn();
         }
     };
-    const handleSignIn = handleSubmit(({ userId, userPw }) => dhlSignInMutation.mutate(getValues()));
+    const handleSignIn = handleSubmit(() => dhlSignInMutation.mutate(getValues()));
 
     const isLoading = dhlSignInMutation.isLoading || dhlBuyLottoMutation.isLoading;
     return (
         <View>
             <V.Row css={{ gap: 10, margin: '10px 0', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                <Card title='동행복권 계정 로그인' css={{ width: 400 }}>
+                <Panel title='동행복권 계정 로그인' css={{ width: 400 }}>
                     <Input>
                         <Input.TextField
                             placeholder='ID'
@@ -73,30 +72,18 @@ const Page = () => {
                     <Button onClick={handleSignIn} loading={dhlSignInMutation.isLoading}>
                         로그인
                     </Button>
-                    {isLoading && <Spinner />}
                     {message && <div>{message}</div>}
                     {uid && <div>{uid} 로그인 중</div>}
                     {amount && <div>보유 금액: {amount}</div>}
-                </Card>
+                </Panel>
 
-                <Card css={{ width: 200 }}>
+                <Panel css={{ width: 200 }}>
                     <Button onClick={() => handleBuyLotto([null])}>1회 자동 구매</Button>
                     <Button onClick={() => handleBuyLotto([null, null, null, null, null])}>5회 자동 구매</Button>
-                </Card>
+                </Panel>
 
-                <Card css={{ width: 'auto' }}>
-                    {curBuyResult && (
-                        <div>
-                            {curBuyResult.split(' ').map((str, key) => (
-                                <div key={key}>{str}</div>
-                            ))}
-                        </div>
-                    )}
-                    <LttPickCard buyLotto={handleBuyLotto} />
-                </Card>
-                <Card css={{ width: 400 }}>
-                    <LttPositionPickPanel buyLotto={handleBuyLotto} />
-                </Card>
+                <LttPickPanel />
+                <LttPosPickPanel buyLotto={handleBuyLotto} />
             </V.Row>
         </View>
     );

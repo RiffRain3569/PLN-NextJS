@@ -5,11 +5,11 @@ type Types = {
     weight?: string | number;
 } & HTMLAttributes<HTMLParagraphElement>;
 
-const Txt = ({ size, weight, ...props }: Types) => {
+const Txt = ({ size = 14, weight, ...props }: Types) => {
     return (
         <p
             css={{
-                fontSize: size ?? 14,
+                fontSize: `${(size ?? 14) / 16}rem`,
                 fontWeight: weight ?? 'normal',
             }}
             {...props}
