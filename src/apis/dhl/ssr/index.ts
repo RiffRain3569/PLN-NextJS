@@ -1,7 +1,7 @@
 import { GET, POST } from '@constants/httpMethod';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
-export const dhlSsrApi = async ({ url, method, reqData }) => {
+export const dhlSsrApi = async ({ url, method, reqData }: any) => {
     return await axios({
         method: method,
         url: `/api/dhl${url}`,
@@ -9,14 +9,18 @@ export const dhlSsrApi = async ({ url, method, reqData }) => {
         data: method === POST ? { ...reqData } : {},
         param: method === GET ? { ...reqData } : {},
         withCredentials: true,
-    })
+    } as AxiosRequestConfig)
         .then((response) => response.data)
         .catch((error) => {
             throw error.response.data;
         });
 };
 
-export const dhlSignIn = async ({ userId = '', userPw = '' }) => {
+type SignInType = {
+    userId: string;
+    userPw: string;
+};
+export const dhlSignIn = async ({ userId = '', userPw = '' }: SignInType) => {
     return await dhlSsrApi({
         url: `/sign-in`,
         method: POST,
@@ -31,7 +35,10 @@ export const dhlJsessionid = async () => {
     });
 };
 
-export const dhlBuyLotto = async ({ dataList }) => {
+type BuyLottoType = {
+    dataList: (number[] | null)[];
+};
+export const dhlBuyLotto = async ({ dataList }: BuyLottoType) => {
     return await dhlSsrApi({
         url: `/buy-lotto`,
         method: POST,

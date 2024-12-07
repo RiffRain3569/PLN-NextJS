@@ -14,7 +14,6 @@ const POST = async (req: NextApiRequest, res: NextApiResponse) => {
         checkSave: '',
     };
 
-    console.log(qs.stringify(req.cookies).split('&').join('; ') + `; userId=${userId}`);
     await axios
         .post('https://www.dhlottery.co.kr/userSsl.do?method=login', qs.stringify(body), {
             headers: {

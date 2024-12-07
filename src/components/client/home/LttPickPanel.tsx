@@ -15,7 +15,7 @@ interface LttPickPanelProps {
 }
 
 const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
-    const [curSavePick, setSavePick] = useRecoilState<number[][]>(savePickState);
+    const [curSavePick, setSavePick] = useRecoilState<(number[] | null)[]>(savePickState);
     const [curPicks, setPicks] = useRecoilState<number[]>(picksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);

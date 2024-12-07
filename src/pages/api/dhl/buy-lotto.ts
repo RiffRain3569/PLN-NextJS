@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
+import qs from 'qs';
 
 // param: [
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'A' },
@@ -10,16 +11,24 @@ import { NextResponse } from 'next/server';
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'E' },
 // ],
 
+/**
+ * dataList = [
+ *  [1, 2, 3, 4, 5, 6],
+ *  [1, 2, 3, 4, 5, 6],
+ *  [1, 2, 3, 4, 5, 6],
+ *  null,
+ *  [1, 2, 3, 4, 5, 6]
+ * ]
+ */
 export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
-    const dhSession = req.cookies['dh_session'];
-    const { dataList = [] } = await req.body;
+    const { dataList } = JSON.parse(req.body);
     const alpabet = ['A', 'B', 'C', 'D', 'E'];
 
     // 부가 데이터 가져오기
     const preData = await axios
         .get('https://ol.dhlottery.co.kr/olotto/game/game645.do', {
             headers: {
-                Cookie: `JSESSIONID=${dhSession}`,
+                Cookie: qs.stringify(req.cookies).split('&').join('; '),
                 Host: 'ol.dhlottery.co.kr',
             },
         })
@@ -40,7 +49,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
     const readyData = await axios
         .post('https://ol.dhlottery.co.kr/olotto/game/egovUserReadySocket.json', '', {
             headers: {
-                Cookie: `JSESSIONID=${dhSession}`,
+                Cookie: qs.stringify(req.cookies).split('&').join('; '),
                 'Content-Type': 'application/json; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',
@@ -77,7 +86,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
     const result = await axios
         .post('https://www.dhlottery.co.kr/olotto/game/execBuy.do', new URLSearchParams(body).toString(), {
             headers: {
-                Cookie: `JSESSIONID=${dhSession}`,
+                Cookie: qs.stringify(req.cookies).split('&').join('; '),
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',
@@ -90,7 +99,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
 
             return { message: data?.arrGameChoiceNum?.join(' ') ?? data?.resultMsg };
         });
-    return NextResponse.json(result);
+    return res.status(200).json(result);
 };
 export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'POST') {

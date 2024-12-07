@@ -1,13 +1,12 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
+import qs from 'qs';
 
 export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
-    const dhSession = req.cookies['JSESSIONID'];
-
     return await axios
         .get('https://dhlottery.co.kr/common.do?method=main', {
             headers: {
-                Cookie: `JSESSIONID=${dhSession}`,
+                Cookie: qs.stringify(req.cookies).split('&').join('; '),
             },
         })
         .then((response: any) => {

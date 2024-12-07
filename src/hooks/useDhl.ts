@@ -1,6 +1,6 @@
 import { dhlJsessionid } from '@apis/dhl/ssr';
 import { useQuery } from '@tanstack/react-query';
-import { getCookie, getCookies } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 
 const useDhl = () => {
@@ -10,19 +10,19 @@ const useDhl = () => {
     const [reset, setReset] = useState(false);
 
     const queryData = useQuery({
-        queryKey: ['session'],
-        queryFn: dhlJsessionid,
-        onSuccess: (res) => {
+        queryKey: ['session', `${new Date().getTime()}`],
+        queryFn: async () => {
+            const res = await dhlJsessionid();
+
             setUidState(res.uid);
             setAmountState(res.amount);
-            setReset(false);
         },
         enabled: !!getCookie('UID'),
     });
 
     useEffect(() => {
-        console.log(getCookies());
         if (reset || !!getCookie('UID')) {
+            setReset(false);
             queryData.refetch();
         }
     }, [reset, !!getCookie('UID')]);

@@ -1,9 +1,9 @@
 import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
+import LttPickPanel from '@components/client/home/LttPickPanel';
 import View from '@components/_layout/client/View';
 import Button from '@components/_ui/button/Button';
 import { Panel, V } from '@components/_ui/index';
 import { Input } from '@components/_ui/input/Input';
-import LttPickPanel from '@components/client/home/LttPickPanel';
 import useDhl from '@hooks/useDhl';
 import { useMutation } from '@tanstack/react-query';
 import { KeyboardEvent, useState } from 'react';
@@ -17,8 +17,9 @@ const Page = () => {
     const { getValues, register, handleSubmit, watch } = useForm();
 
     const watchForm = watch();
-    const dhlSignInMutation = useMutation(dhlSignIn, {
-        onSuccess: (res) => {
+    const dhlSignInMutation = useMutation({
+        mutationFn: dhlSignIn,
+        onSuccess: () => {
             setReset(true);
         },
 
@@ -27,7 +28,8 @@ const Page = () => {
         },
     });
 
-    const dhlBuyLottoMutation = useMutation(dhlBuyLotto, {
+    const dhlBuyLottoMutation = useMutation({
+        mutationFn: dhlBuyLotto,
         onSuccess: (res: any) => {
             setBuyResult(res.message);
         },
@@ -47,9 +49,9 @@ const Page = () => {
             handleSignIn();
         }
     };
-    const handleSignIn = handleSubmit(() => dhlSignInMutation.mutate(getValues()));
+    const handleSignIn = handleSubmit(() => dhlSignInMutation.mutate(getValues() as any));
 
-    const isLoading = dhlSignInMutation.isLoading || dhlBuyLottoMutation.isLoading;
+    const isLoading = dhlSignInMutation.isPending || dhlBuyLottoMutation.isPending;
     return (
         <View>
             <V.Row css={{ gap: 10, margin: '10px 0', flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -69,7 +71,7 @@ const Page = () => {
                             onKeyUp={handleKeyUp}
                         />
                     </Input>
-                    <Button onClick={handleSignIn} loading={dhlSignInMutation.isLoading}>
+                    <Button onClick={handleSignIn} loading={dhlSignInMutation.isPending}>
                         로그인
                     </Button>
                     {message && <div>{message}</div>}
