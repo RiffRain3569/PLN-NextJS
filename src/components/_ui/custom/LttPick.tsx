@@ -1,5 +1,5 @@
 import { V } from '@components/_ui/div/V';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NumberButton from '../button/NumberButton';
 import Txt from '../typography/Txt';
 
@@ -19,6 +19,12 @@ const LttPick = ({ widthNums = 7, values = [], onChange, gap = 8 }: Props) => {
         setPicks(newPicks);
     };
 
+    useEffect(() => {
+        if ((values || []).length > 0) {
+            onChange?.(values);
+            setPicks(values);
+        }
+    }, [values]);
     return (
         <V.Row css={{ width: `calc((32px + ${gap}px) * ${widthNums} - ${gap}px)`, flexWrap: 'wrap', gap }}>
             {[...Array(45).keys()].map((num, key) => (

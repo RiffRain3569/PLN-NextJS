@@ -7,6 +7,9 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
+    env: {
+        LOTTO_API_HOST: process.env.LOTTO_API_HOST,
+    },
     generateBuildId: async () => {
         // You can, for example, get the latest git commit hash here
         return randomUUID();

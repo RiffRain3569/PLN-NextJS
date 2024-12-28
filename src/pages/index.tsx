@@ -1,4 +1,4 @@
-import { dhlBuyLotto, dhlSignIn } from '@apis/dhl/ssr';
+import { dhlBuyLotto, dhlSignIn } from '@apis/client/dhl';
 import LttPickPanel from '@components/client/home/LttPickPanel';
 import View from '@components/_layout/client/View';
 import Button from '@components/_ui/button/Button';

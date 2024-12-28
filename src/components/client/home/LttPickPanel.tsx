@@ -1,11 +1,13 @@
-import { LttPick, NumberButton, Panel, V } from '@components/_ui';
+import { selectLottoPredict } from '@apis/client/lotto';
+import { LttPick, NumberButton, Panel, Txt, V } from '@components/_ui';
 import Button from '@components/_ui/button/Button';
 import IconButton from '@components/_ui/button/IconButton';
 import Divider from '@components/_ui/custom/Divider';
 import { Input } from '@components/_ui/input/Input';
 import AddShoppingCartOutlinedIcon from '@mui/icons-material/AddShoppingCartOutlined';
 import { picksState, savePickState } from '@store/lotto';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
 import { is_ban_patten } from 'utils/lotto';
@@ -20,6 +22,9 @@ const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);
     const [curIsBan, setIsBan] = useState<boolean>(true);
+
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [curLottoId, setLottoId] = useState<number | undefined>();
 
     const handleGenLttNums = () => {
         let result: number[][] = [];
@@ -55,15 +60,48 @@ const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
         setLttNums(result);
     };
 
+    const queryData = useQuery({
+        queryKey: ['lotto', curLottoId],
+        queryFn: async () => {
+            try {
+                const data = await selectLottoPredict({ lottoId: curLottoId as number });
+                return data;
+            } catch (error: any) {
+                alert(error.detail);
+                return {};
+            }
+        },
+        enabled: !!curLottoId,
+    });
+
     return (
         <Panel title='선택한 번호 범위의 랜덤 번호 생성' css={{ width: 600 }}>
             <V.Column css={{ gap: 20 }}>
                 <V.Row css={{ gap: 10 }}>
-                    <LttPick onChange={(picks) => setPicks(picks)} />
-                    <V.Column>
+                    <LttPick onChange={(picks) => setPicks(picks)} values={queryData?.data?.pickNums || []} />
+                    <V.Column css={{ gap: 10 }}>
                         <Button onClick={() => setIsBan((s) => !s)} css={{ width: 'auto' }}>
                             {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}
                         </Button>
+
+                        <V.Row css={{ gap: 10 }}>
+                            <Input label='예측 회차' css={{ width: 100 }}>
+                                <Input.TextField type='number' defaultValue={1} min={50} ref={inputRef} />
+                            </Input>
+                            <Button
+                                onClick={() => {
+                                    setLottoId(Number(inputRef?.current?.value));
+                                    queryData.refetch();
+                                }}
+                                css={{ width: 'auto' }}
+                            >
+                                번호 예측
+                            </Button>
+                        </V.Row>
+                        <Txt>
+                            매칭 번호: {JSON.stringify(queryData?.data?.matchNums || [])}{' '}
+                            {(queryData?.data?.matchNums || []).length} / {(curPicks || []).length}
+                        </Txt>
                     </V.Column>
                 </V.Row>
 

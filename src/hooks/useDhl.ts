@@ -1,4 +1,4 @@
-import { dhlJsessionid } from '@apis/dhl/ssr';
+import { dhlJsessionid } from '@apis/client/dhl';
 import { useQuery } from '@tanstack/react-query';
 import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';

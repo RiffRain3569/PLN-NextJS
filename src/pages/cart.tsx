@@ -1,4 +1,4 @@
-import { dhlBuyLotto } from '@apis/dhl/ssr';
+import { dhlBuyLotto } from '@apis/client/dhl';
 import View from '@components/_layout/client/View';
 import { Button, NumberButton, Panel, V } from '@components/_ui';
 import IconButton from '@components/_ui/button/IconButton';
