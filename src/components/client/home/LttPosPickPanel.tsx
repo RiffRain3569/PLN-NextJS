@@ -1,18 +1,17 @@
 import { Button, NumberButton, Panel, PositionButton, V } from '@components/_ui';
 import LttPickAreaContent from '@components/_ui/custom/LttPick';
 import { Input } from '@components/_ui/input/Input';
-import { posPicksState } from '@store/lotto';
+import { posPicksState, savePickState } from '@store/lotto';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
 import { is_ban_patten } from 'utils/lotto';
 
-interface LttPositionPickPanelProps {
-    buyLotto?: (lttNums: number[][]) => void;
-}
+interface Props {}
 
-const LttPosPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto }) => {
+const LttPosPickPanel: React.FC<Props> = ({}) => {
     const [curPos, setPos] = useState<number>(-1);
+    const [curSavePick, setSavePick] = useRecoilState<(number[] | null)[]>(savePickState);
     const [curPosPicks, setPosPicks] = useRecoilState<number[][]>(posPicksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
     const [curRandomCnt, setRandomCnt] = useState<number>(1);
@@ -99,7 +98,7 @@ const LttPosPickPanel: React.FC<LttPositionPickPanelProps> = ({ buyLotto }) => {
                             {lttNum.map((num, colKey) => (
                                 <NumberButton key={colKey} number={num} />
                             ))}
-                            <Button onClick={() => buyLotto?.([lttNum])}>구매</Button>
+                            <Button onClick={() => setSavePick((s) => s.concat([lttNum]))}>추가</Button>
                         </V.Row>
                     ))}
                 </>

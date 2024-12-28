@@ -7,16 +7,14 @@ import { Input } from '@components/_ui/input/Input';
 import AddShoppingCartOutlinedIcon from '@mui/icons-material/AddShoppingCartOutlined';
 import { picksState, savePickState } from '@store/lotto';
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isEqual, shuffleArray } from 'utils/common';
 import { is_ban_patten } from 'utils/lotto';
 
-interface LttPickPanelProps {
-    buyLotto?: (lttNums: number[][]) => void;
-}
+interface Props {}
 
-const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
+const LttPickPanel = ({}: Props) => {
     const [curSavePick, setSavePick] = useRecoilState<(number[] | null)[]>(savePickState);
     const [curPicks, setPicks] = useRecoilState<number[]>(picksState);
     const [curLttNums, setLttNums] = useState<number[][]>([]);
@@ -65,20 +63,26 @@ const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
         queryFn: async () => {
             try {
                 const data = await selectLottoPredict({ lottoId: curLottoId as number });
+                setPicks(data?.pickNums);
                 return data;
             } catch (error: any) {
-                alert(error.detail);
+                alert(JSON.stringify(error, null, 2));
                 return {};
             }
         },
         enabled: !!curLottoId,
     });
 
+    useEffect(() => {
+        if (!!curLottoId) {
+            queryData.refetch();
+        }
+    }, [curLottoId]);
     return (
         <Panel title='선택한 번호 범위의 랜덤 번호 생성' css={{ width: 600 }}>
             <V.Column css={{ gap: 20 }}>
                 <V.Row css={{ gap: 10 }}>
-                    <LttPick onChange={(picks) => setPicks(picks)} values={queryData?.data?.pickNums || []} />
+                    <LttPick onChange={(picks) => setPicks(picks)} values={curPicks || []} />
                     <V.Column css={{ gap: 10 }}>
                         <Button onClick={() => setIsBan((s) => !s)} css={{ width: 'auto' }}>
                             {curIsBan ? '밴 패턴 적용 중' : '밴 패턴 미적용'}
@@ -86,13 +90,10 @@ const LttPickPanel = ({ buyLotto }: LttPickPanelProps) => {
 
                         <V.Row css={{ gap: 10 }}>
                             <Input label='예측 회차' css={{ width: 100 }}>
-                                <Input.TextField type='number' defaultValue={1} min={50} ref={inputRef} />
+                                <Input.TextField type='number' defaultValue={50} min={50} ref={inputRef} />
                             </Input>
                             <Button
-                                onClick={() => {
-                                    setLottoId(Number(inputRef?.current?.value));
-                                    queryData.refetch();
-                                }}
+                                onClick={() => setLottoId(Number(inputRef?.current?.value))}
                                 css={{ width: 'auto' }}
                             >
                                 번호 예측
