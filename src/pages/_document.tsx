@@ -6,7 +6,7 @@ const Document = () => {
         <Html lang='en'>
             <Head>
                 <link rel='manifest' href='/manifest.json' />
-                <meta name='theme-color' content='#9aa7f9' />
+                <meta name='theme-color' content='#590016' />
             </Head>
             <body>
                 <Main />
