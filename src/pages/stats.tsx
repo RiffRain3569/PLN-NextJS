@@ -79,7 +79,7 @@ const HotColdTab = ({ fromId, toId, includeBonus }: FilterParams) => {
 
     const unpick: number[] = data.unpick;
     const withIndex = unpick.map((cnt: number, i: number) => ({ num: i + 1, cnt }));
-    const hot = [...withIndex].sort((a, b) => a.cnt - b.cnt).slice(0, 10);
+    const hot = [...withIndex].sort((a, b) => a.cnt - b.cnt).slice(0, 20);
     const cold = [...withIndex].sort((a, b) => b.cnt - a.cnt).slice(0, 10);
     const maxCold = cold[0]?.cnt ?? 1;
 
