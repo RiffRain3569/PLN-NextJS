@@ -25,3 +25,32 @@ export const selectLottoPredict = async ({ lottoId }: SelectLottoPredictType) =>
         method: GET,
     });
 };
+
+type StatsParams = {
+    fromId: number;
+    toId: number;
+    includeBonus?: boolean;
+};
+
+const statsClientApi = (path: string, params: Record<string, unknown>) =>
+    axios({ method: GET, url: `/api/lotto/stats/${path}`, params } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
+
+export const fetchStatsFreq = ({ fromId, toId, includeBonus = false }: StatsParams) =>
+    statsClientApi('freq', { fromId, toId, includeBonus });
+
+export const fetchStatsSum = ({ fromId, toId }: StatsParams) =>
+    statsClientApi('sum', { fromId, toId });
+
+export const fetchStatsOddEven = ({ fromId, toId, includeBonus = false }: StatsParams) =>
+    statsClientApi('odd-even', { fromId, toId, includeBonus });
+
+export const fetchStatsDigit = ({ fromId, toId, includeBonus = false }: StatsParams) =>
+    statsClientApi('digit', { fromId, toId, includeBonus });
+
+export const fetchStatsPairs = ({ fromId, toId }: StatsParams) =>
+    statsClientApi('pairs', { fromId, toId });
+
+export const fetchStatsAc = ({ fromId, toId }: StatsParams) =>
+    statsClientApi('ac', { fromId, toId });
