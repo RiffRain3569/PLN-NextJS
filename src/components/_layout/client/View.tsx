@@ -20,6 +20,7 @@ const View = ({ children }: { children: ReactNode }) => {
                 css={{
                     maxWidth: width,
                     margin: 'auto',
+                    padding: '0 20px',
                 }}
             >
                 {children}
