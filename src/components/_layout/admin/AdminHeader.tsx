@@ -4,12 +4,18 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { adminColors } from './theme/colors';
 
 const NAV_ITEMS = [{ path: '/admin/main', value: '자동구매' }];
 
 const AdminHeader = ({ width, height }: { width?: string | number; height?: string | number }) => {
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const logoutMutation = useMutation({
         mutationFn: async () => {
@@ -49,7 +55,7 @@ const AdminHeader = ({ width, height }: { width?: string | number; height?: stri
                     </Txt>
                     <nav css={{ display: 'flex', alignItems: 'center', gap: 32 }}>
                         {NAV_ITEMS.map((el) => {
-                            const isActive = router.pathname === el.path;
+                            const isActive = mounted && router.pathname === el.path;
                             return (
                                 <Link key={el.path} href={el.path}>
                                     <Txt

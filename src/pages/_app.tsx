@@ -1,19 +1,27 @@
 /** @jsxImportSource @emotion/react */
+import { CacheProvider, EmotionCache } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import createEmotionCache from '@lib/emotionCache';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { ReactNode } from 'react';
 import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient();
+const clientSideEmotionCache = createEmotionCache();
 
 const Wrapped = ({ children }: { children: ReactNode }) => {
     return <>{children}</>;
 };
 
-function MyApp({ Component, pageProps }: AppProps) {
+interface MyAppProps extends AppProps {
+    emotionCache?: EmotionCache;
+}
+
+function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: MyAppProps) {
     return (
+        <CacheProvider value={emotionCache}>
         <QueryClientProvider client={queryClient}>
             <RecoilRoot>
                 <Head>
@@ -32,6 +40,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <ReactQueryDevtools initialIsOpen={false} />
             </RecoilRoot>
         </QueryClientProvider>
+        </CacheProvider>
     );
 }
 

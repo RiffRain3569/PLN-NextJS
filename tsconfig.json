@@ -11,7 +11,8 @@
             "@constants/*": ["constants/*"],
             "@components/*": ["components/*"],
             "@store/*": ["store/*"],
-            "@hooks/*": ["hooks/*"]
+            "@hooks/*": ["hooks/*"],
+            "@lib/*": ["lib/*"]
         },
         /////////
         // mui

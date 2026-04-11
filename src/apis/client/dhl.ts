@@ -5,8 +5,7 @@ export const dhlSsrApi = async ({ url, method, reqData }: any) => {
     return await axios({
         method: method,
         url: `/api/dhl${url}`,
-        headers: { 'Content-type': 'application/json' },
-        data: method === POST ? { ...reqData } : {},
+        data: method === POST ? { ...reqData } : undefined,
         param: method === GET ? { ...reqData } : {},
         withCredentials: true,
     } as AxiosRequestConfig)
@@ -32,6 +31,13 @@ export const dhlJsessionid = async () => {
     return await dhlSsrApi({
         url: `/jsessionid`,
         method: POST,
+    });
+};
+
+export const dhlSignOut = async () => {
+    return await dhlSsrApi({
+        url: `/sign-out`,
+        method: 'DELETE',
     });
 };
 

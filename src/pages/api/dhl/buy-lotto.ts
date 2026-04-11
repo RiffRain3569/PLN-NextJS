@@ -74,17 +74,18 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
                     arrGameChoiceNum: numList === null ? null : numList.join(','),
                     genType: numList === null ? '0' : '1',
                     alpabet: alpabet[key],
-                })
+                }),
             )
             .join(',')}]`,
         ROUND_DRAW_DATE: `${preData.drawData}`,
         WAMT_PAY_TLMT_END_DT: `${preData.limitData}`,
         gameCnt: dataList.length,
+        saleMdaDcd: '10',
     };
 
     console.log(body);
     const result = await axios
-        .post('https://www.dhlottery.co.kr/olotto/game/execBuy.do', new URLSearchParams(body).toString(), {
+        .post('https://ol.dhlottery.co.kr/olotto/game/execBuy.do', new URLSearchParams(body).toString(), {
             headers: {
                 Cookie: qs.stringify(req.cookies).split('&').join('; '),
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',

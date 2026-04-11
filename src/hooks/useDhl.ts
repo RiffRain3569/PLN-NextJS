@@ -4,30 +4,30 @@ import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 
 const useDhl = () => {
-    const [curUid, setUidState] = useState('');
+    const [curUserId, setUidState] = useState('');
     const [curAmount, setAmountState] = useState('');
-
     const [reset, setReset] = useState(false);
 
     const queryData = useQuery({
-        queryKey: ['session', `${new Date().getTime()}`],
+        queryKey: ['dhl-session'],
         queryFn: async () => {
             const res = await dhlJsessionid();
-
-            setUidState(res.uid);
+            setUidState(res.userId);
             setAmountState(res.amount);
+            return res;
         },
-        enabled: !!getCookie('UID'),
+        enabled: !!getCookie('dhl_userId'),
+        staleTime: 1000 * 60 * 5, // 5분 캐시
     });
 
     useEffect(() => {
-        if (reset || !!getCookie('UID')) {
+        if (reset || !!getCookie('dhl_userId')) {
             setReset(false);
             queryData.refetch();
         }
-    }, [reset, !!getCookie('UID')]);
+    }, [reset]);
 
-    return { uid: curUid, amount: curAmount, setReset };
+    return { userId: curUserId, amount: curAmount, setReset };
 };
 
 export default useDhl;

@@ -7,7 +7,7 @@ import { V } from '../div/V';
 const TextField = forwardRef((props: InputHTMLAttributes<HTMLInputElement>, ref: ForwardedRef<HTMLInputElement>) => {
     return (
         <V.Column css={[{ height: 40, borderBottom: `1px solid ${colors.text}` }]}>
-            <input ref={ref} type='text' css={{ height: '100%' }} {...props} />
+            <input ref={ref} type='text' css={{ height: '100%', padding: '6px 12px' }} {...props} />
         </V.Column>
     );
 });

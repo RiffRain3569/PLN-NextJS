@@ -2,31 +2,31 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import qs from 'qs';
 
-export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
-    return await axios
-        .get('https://dhlottery.co.kr/common.do?method=main', {
-            headers: {
-                Cookie: qs.stringify(req.cookies).split('&').join('; '),
-            },
-        })
-        .then((response: any) => {
-            console.log('set-cookie', response.headers['set-cookie']);
-            const resUid = response.headers['set-cookie']
-                .find((item: any) => item.includes('UID'))
-                ?.split('UID=')[1]
-                .split(';')[0];
-            const amount = response.data
-                .split('/myPage.do?method=depositListView')
-                .at(1)
-                ?.split('<strong>')[1]
-                .split('</strong>')[0]
-                .slice(0, -2);
-            console.log('amount', amount);
-            res.status(200).json({ uid: resUid ?? '', amount: amount ?? '' });
+const POST = async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
+        const cookieHeader = qs.stringify(req.cookies).split('&').join('; ');
+
+        const response = await axios.get('https://www.dhlottery.co.kr/mypage/selectUserMndp.do', {
+            headers: { Cookie: cookieHeader },
         });
+
+        const totalAmt = response.data?.data?.userMndp?.totalAmt ?? '';
+        const amount = totalAmt ? Number(totalAmt).toLocaleString() : '';
+        const userId = req.cookies.dhl_userId ?? '';
+
+        // 로그인 중이면 dhl_userId 쿠키 갱신 (새로고침해도 유지)
+        if (userId) {
+            res.setHeader('Set-Cookie', `dhl_userId=${userId}; Path=/; Max-Age=${60 * 60 * 24}; SameSite=Lax`);
+        }
+
+        return res.status(200).json({ userId, amount });
+    } catch (e) {
+        console.error('dhl jsessionid error', e);
+        return res.status(500).json({ message: '세션 확인에 실패하였습니다.' });
+    }
 };
 
-export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'POST') {
         await POST(req, res);
     }
