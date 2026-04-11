@@ -21,7 +21,7 @@ import qs from 'qs';
  * ]
  */
 export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
-    const { dataList } = JSON.parse(req.body);
+    const { dataList } = req.body;
     const alpabet = ['A', 'B', 'C', 'D', 'E'];
 
     // 부가 데이터 가져오기

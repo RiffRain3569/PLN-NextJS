@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import qs from 'qs';
 
 const POST = async (req: NextApiRequest, res: NextApiResponse) => {
-    const { userId, userPw } = JSON.parse(req.body);
+    const { userId, userPw } = req.body;
 
     const body = {
         userId: userId,
