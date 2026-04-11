@@ -1,7 +1,7 @@
 import { GET, POST } from '@constants/httpMethod';
 import axios, { AxiosRequestConfig } from 'axios';
 
-export const fetchRounds = ({ cursor, limit = 20 }: { cursor?: number; limit?: number } = {}) =>
+export const fetchRounds = ({ cursor, limit = 50 }: { cursor?: number; limit?: number } = {}) =>
     axios({ method: GET, url: '/api/lotto/rounds', params: { cursor, limit } } as AxiosRequestConfig)
         .then((r) => r.data)
         .catch((e) => { throw e?.response?.data; });
