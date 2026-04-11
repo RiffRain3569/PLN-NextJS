@@ -18,6 +18,17 @@ export const lottoServerApi = async ({ url, method, reqData }: any) => {
         });
 };
 
+export const selectLottos = async ({ cursor, limit = 20 }: { cursor?: number; limit?: number }) => {
+    return await axios({
+        method: GET,
+        baseURL: process.env.LOTTO_API_HOST,
+        url: '/lottos',
+        params: { cursor, limit },
+    } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
+};
+
 type SelectLottoPredictType = {
     lottoId: number;
 };

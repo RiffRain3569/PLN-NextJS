@@ -25,6 +25,9 @@ const View = ({ children }: { children: ReactNode }) => {
             >
                 {children}
             </main>
+
+            {/* 모바일 하단 탭바 높이만큼 하단 여백 */}
+            <div css={{ display: 'none', '@media (max-width: 768px)': { display: 'block', height: 64 } }} />
         </>
     );
 };

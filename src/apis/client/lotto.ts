@@ -1,6 +1,11 @@
 import { GET, POST } from '@constants/httpMethod';
 import axios, { AxiosRequestConfig } from 'axios';
 
+export const fetchRounds = ({ cursor, limit = 20 }: { cursor?: number; limit?: number } = {}) =>
+    axios({ method: GET, url: '/api/lotto/rounds', params: { cursor, limit } } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
+
 export const lottoServerApi = async ({ url, method, reqData }: any) => {
     return await axios({
         method: method,
