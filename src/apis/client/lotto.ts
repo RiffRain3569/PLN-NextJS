@@ -1,35 +1,20 @@
-import { GET, POST } from '@constants/httpMethod';
+import { GET } from '@constants/httpMethod';
 import axios, { AxiosRequestConfig } from 'axios';
 
+const BASE_URL = process.env.NEXT_PUBLIC_LOTTO_API_HOST;
+
 export const fetchRounds = ({ cursor, limit = 50 }: { cursor?: number; limit?: number } = {}) =>
-    axios({ method: GET, url: '/api/lotto/rounds', params: { cursor, limit } } as AxiosRequestConfig)
+    axios({ method: GET, url: `${BASE_URL}/api/lotto`, params: { cursor, limit } } as AxiosRequestConfig)
         .then((r) => r.data)
         .catch((e) => { throw e?.response?.data; });
-
-export const lottoServerApi = async ({ url, method, reqData }: any) => {
-    return await axios({
-        method: method,
-        url: `/api/lotto${url}`,
-        headers: { 'Content-type': 'application/json' },
-        data: method === POST ? { ...reqData } : {},
-        param: method === GET ? { ...reqData } : {},
-        withCredentials: true,
-    } as AxiosRequestConfig)
-        .then((response) => response.data)
-        .catch((error) => {
-            throw error.response.data;
-        });
-};
 
 type SelectLottoPredictType = {
     lottoId: number;
 };
-export const selectLottoPredict = async ({ lottoId }: SelectLottoPredictType) => {
-    return await lottoServerApi({
-        url: `/lottos/${lottoId}/predict`,
-        method: GET,
-    });
-};
+export const selectLottoPredict = async ({ lottoId }: SelectLottoPredictType) =>
+    axios({ method: GET, url: `${BASE_URL}/api/lotto/${lottoId}/predict` } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
 
 type StatsParams = {
     fromId: number;
@@ -37,25 +22,25 @@ type StatsParams = {
     includeBonus?: boolean;
 };
 
-const statsClientApi = (path: string, params: Record<string, unknown>) =>
-    axios({ method: GET, url: `/api/lotto/stats/${path}`, params } as AxiosRequestConfig)
+const statsApi = (path: string, params: Record<string, unknown>) =>
+    axios({ method: GET, url: `${BASE_URL}/api/lotto/stats/${path}`, params } as AxiosRequestConfig)
         .then((r) => r.data)
         .catch((e) => { throw e?.response?.data; });
 
 export const fetchStatsFreq = ({ fromId, toId, includeBonus = false }: StatsParams) =>
-    statsClientApi('freq', { fromId, toId, includeBonus });
+    statsApi('freq', { from_id: fromId, to_id: toId, include_bonus: includeBonus });
 
 export const fetchStatsSum = ({ fromId, toId }: StatsParams) =>
-    statsClientApi('sum', { fromId, toId });
+    statsApi('sum', { from_id: fromId, to_id: toId });
 
 export const fetchStatsOddEven = ({ fromId, toId, includeBonus = false }: StatsParams) =>
-    statsClientApi('odd-even', { fromId, toId, includeBonus });
+    statsApi('odd-even', { from_id: fromId, to_id: toId, include_bonus: includeBonus });
 
 export const fetchStatsDigit = ({ fromId, toId, includeBonus = false }: StatsParams) =>
-    statsClientApi('digit', { fromId, toId, includeBonus });
+    statsApi('digit', { from_id: fromId, to_id: toId, include_bonus: includeBonus });
 
 export const fetchStatsPairs = ({ fromId, toId }: StatsParams) =>
-    statsClientApi('pairs', { fromId, toId });
+    statsApi('pairs', { from_id: fromId, to_id: toId });
 
 export const fetchStatsAc = ({ fromId, toId }: StatsParams) =>
-    statsClientApi('ac', { fromId, toId });
+    statsApi('ac', { from_id: fromId, to_id: toId });
