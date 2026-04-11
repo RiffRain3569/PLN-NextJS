@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import NumberButton from '@components/_ui/button/NumberButton';
 import { colors } from '@components/_layout/client/theme/colors';
+import NumberButton from '@components/_ui/button/NumberButton';
 import { useMemo, useState } from 'react';
 import { is_ban_patten } from 'utils/lotto';
 
@@ -44,7 +44,13 @@ const weightedSample = (pool: { num: number; w: number }[], k: number): number[]
         const total = rem.reduce((s, x) => s + x.w, 0);
         let r = Math.random() * total;
         let idx = rem.length - 1;
-        for (let j = 0; j < rem.length; j++) { r -= rem[j].w; if (r <= 0) { idx = j; break; } }
+        for (let j = 0; j < rem.length; j++) {
+            r -= rem[j].w;
+            if (r <= 0) {
+                idx = j;
+                break;
+            }
+        }
         result.push(rem[idx].num);
         rem.splice(idx, 1);
     }
@@ -76,7 +82,10 @@ const downloadCSV = (combos: Combo[]) => {
 
 const saveToLibrary = (nums: number[]) => {
     const saved: number[][] = JSON.parse(localStorage.getItem('lotto-saved') || '[]');
-    if (saved.length >= 1000) { alert('서재가 가득 찼습니다 (최대 1000개)'); return; }
+    if (saved.length >= 1000) {
+        alert('서재가 가득 찼습니다 (최대 1000개)');
+        return;
+    }
     localStorage.setItem('lotto-saved', JSON.stringify([...saved, nums]));
 };
 
@@ -99,7 +108,12 @@ const btnOutline = {
 } as const;
 
 // ─── CheckboxFilter ───────────────────────────────────────────────────
-const CheckboxFilter = ({ label, values, selected, onChange }: {
+const CheckboxFilter = ({
+    label,
+    values,
+    selected,
+    onChange,
+}: {
     label: string;
     values: number[];
     selected: Set<number> | null;
@@ -117,18 +131,31 @@ const CheckboxFilter = ({ label, values, selected, onChange }: {
             {values.map((v) => {
                 const checked = isOn && selected!.has(v);
                 return (
-                    <button key={v} onClick={() => toggle(v)} css={{
-                        minWidth: 28, height: 24, padding: '0 6px', borderRadius: 4,
-                        fontSize: '0.78rem', fontWeight: checked ? 'bold' : 'normal',
-                        border: `1px solid ${checked ? '#7C3AED' : colors.line}`,
-                        background: checked ? 'rgba(124,58,237,0.25)' : 'none',
-                        color: checked ? '#c4b5fd' : `${colors.text}88`,
-                        transition: 'all 0.15s',
-                    }}>{v}</button>
+                    <button
+                        key={v}
+                        onClick={() => toggle(v)}
+                        css={{
+                            minWidth: 28,
+                            height: 24,
+                            padding: '0 6px',
+                            borderRadius: 4,
+                            fontSize: '0.78rem',
+                            fontWeight: checked ? 'bold' : 'normal',
+                            border: `1px solid ${checked ? '#7C3AED' : colors.line}`,
+                            background: checked ? 'rgba(124,58,237,0.25)' : 'none',
+                            color: checked ? '#c4b5fd' : `${colors.text}88`,
+                            transition: 'all 0.15s',
+                        }}
+                    >
+                        {v}
+                    </button>
                 );
             })}
             {isOn && (
-                <button onClick={() => onChange(null)} css={{ fontSize: '0.72rem', color: '#f87171', background: 'none', padding: 0 }}>
+                <button
+                    onClick={() => onChange(null)}
+                    css={{ fontSize: '0.72rem', color: '#f87171', background: 'none', padding: 0 }}
+                >
                     해제
                 </button>
             )}
@@ -137,97 +164,237 @@ const CheckboxFilter = ({ label, values, selected, onChange }: {
 };
 
 // ─── RangeInput ───────────────────────────────────────────────────────
-const RangeInput = ({ label, value, onChange, min, max }: {
-    label: string; value: FilterRange | null;
-    onChange: (v: FilterRange | null) => void; min: number; max: number;
+const RangeInput = ({
+    label,
+    value,
+    onChange,
+    min,
+    max,
+}: {
+    label: string;
+    value: FilterRange | null;
+    onChange: (v: FilterRange | null) => void;
+    min: number;
+    max: number;
 }) => {
     const isOn = value !== null;
     const v = value ?? [min, max];
     const inputCss = {
-        width: 52, padding: '4px 6px', textAlign: 'center' as const,
-        background: colors.background, border: `1px solid ${colors.line}`,
-        borderRadius: 4, fontSize: '0.82rem', opacity: isOn ? 1 : 0.35,
+        width: 52,
+        padding: '4px 6px',
+        textAlign: 'center' as const,
+        background: colors.background,
+        border: `1px solid ${colors.line}`,
+        borderRadius: 4,
+        fontSize: '0.82rem',
+        opacity: isOn ? 1 : 0.35,
     };
     return (
         <div css={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <button onClick={() => onChange(isOn ? null : [min, max])} css={{
-                width: 16, height: 16, borderRadius: 3, flexShrink: 0,
-                border: `1px solid ${isOn ? '#7C3AED' : colors.line}`,
-                background: isOn ? '#7C3AED' : 'none', fontSize: 10, color: 'white',
-            }}>{isOn ? '✓' : ''}</button>
+            <button
+                onClick={() => onChange(isOn ? null : [min, max])}
+                css={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 3,
+                    flexShrink: 0,
+                    border: `1px solid ${isOn ? '#7C3AED' : colors.line}`,
+                    background: isOn ? '#7C3AED' : 'none',
+                    fontSize: 10,
+                    color: 'white',
+                }}
+            >
+                {isOn ? '✓' : ''}
+            </button>
             <span css={{ fontSize: '0.82rem', width: 80, flexShrink: 0, opacity: 0.8 }}>{label}</span>
-            <input type="number" value={v[0]} min={min} max={v[1]} disabled={!isOn}
+            <input
+                type='number'
+                value={v[0]}
+                min={min}
+                max={v[1]}
+                disabled={!isOn}
                 onChange={(e) => onChange([Math.max(min, Math.min(Number(e.target.value), v[1])), v[1]])}
-                css={inputCss} />
+                css={inputCss}
+            />
             <span css={{ opacity: 0.4, fontSize: '0.8rem' }}>~</span>
-            <input type="number" value={v[1]} min={v[0]} max={max} disabled={!isOn}
+            <input
+                type='number'
+                value={v[1]}
+                min={v[0]}
+                max={max}
+                disabled={!isOn}
                 onChange={(e) => onChange([v[0], Math.max(Number(e.target.value), v[0])])}
-                css={inputCss} />
+                css={inputCss}
+            />
         </div>
     );
 };
 
 // ─── Panel1And2 ───────────────────────────────────────────────────────
-const Panel1And2 = ({ excluded, onToggle, onClearExclude, onLoadExclude, weights, onWeight, onResetWeights, onLoadWeights }: {
-    excluded: Set<number>; onToggle: (n: number) => void;
-    onClearExclude: () => void; onLoadExclude: () => void;
-    weights: Record<number, number>; onWeight: (num: number, value: number) => void;
-    onResetWeights: () => void; onLoadWeights: () => void;
+const Panel1And2 = ({
+    excluded,
+    onToggle,
+    onClearExclude,
+    onLoadExclude,
+    weights,
+    onWeight,
+    onResetWeights,
+    onLoadWeights,
+}: {
+    excluded: Set<number>;
+    onToggle: (n: number) => void;
+    onClearExclude: () => void;
+    onLoadExclude: () => void;
+    weights: Record<number, number>;
+    onWeight: (num: number, value: number) => void;
+    onResetWeights: () => void;
+    onLoadWeights: () => void;
 }) => (
     <div css={panelCss}>
-        <div css={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+        <div
+            css={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 16,
+                flexWrap: 'wrap',
+                gap: 8,
+            }}
+        >
             <div css={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <p css={{ fontSize: '0.9rem', fontWeight: 'bold', color: colors.white }}>번호 설정</p>
-                <button onClick={onClearExclude} css={{ fontSize: '0.78rem', opacity: 0.5, background: 'none', padding: 0, '&:hover': { opacity: 1 } }}>제외수 초기화</button>
-                <button onClick={onResetWeights} css={{ fontSize: '0.78rem', opacity: 0.5, background: 'none', padding: 0, '&:hover': { opacity: 1 } }}>가중치 초기화</button>
+                <button
+                    onClick={onClearExclude}
+                    css={{
+                        fontSize: '0.78rem',
+                        opacity: 0.5,
+                        background: 'none',
+                        padding: 0,
+                        '&:hover': { opacity: 1 },
+                    }}
+                >
+                    제외수 초기화
+                </button>
+                <button
+                    onClick={onResetWeights}
+                    css={{
+                        fontSize: '0.78rem',
+                        opacity: 0.5,
+                        background: 'none',
+                        padding: 0,
+                        '&:hover': { opacity: 1 },
+                    }}
+                >
+                    가중치 초기화
+                </button>
             </div>
             <div css={{ display: 'flex', gap: 8 }}>
-                <button onClick={onLoadExclude} css={btnOutline}>추천 제외수</button>
-                <button onClick={onLoadWeights} css={btnOutline}>추천 가중치</button>
+                <button onClick={onLoadExclude} css={btnOutline}>
+                    추천 제외수
+                </button>
+                <button onClick={onLoadWeights} css={btnOutline}>
+                    추천 가중치
+                </button>
             </div>
         </div>
-        <div css={{
-            display: 'grid', gridTemplateColumns: 'repeat(7, auto)', gap: 10,
-            '@media (max-width: 768px)': { display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' },
-        }}>
+        <div
+            css={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, auto)',
+                gap: 10,
+                '@media (max-width: 768px)': { display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' },
+            }}
+        >
             {Array.from({ length: 45 }, (_, i) => i + 1).map((num) => {
                 const isExcluded = excluded.has(num);
                 return (
                     <div key={num} css={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <div onClick={() => onToggle(num)} css={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
-                            <div css={{ opacity: isExcluded ? 0.25 : 1, transition: 'opacity 0.15s' }}>
-                                <NumberButton number={num} size="md" mobileSize="sm" disabled />
+                        <div
+                            onClick={() => onToggle(num)}
+                            css={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}
+                        >
+                            <div
+                                css={{
+                                    opacity: isExcluded ? 0.25 : 1,
+                                    transition: 'opacity 0.15s',
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                <NumberButton number={num} size='md' mobileSize='sm' disabled />
                             </div>
                             {isExcluded && (
-                                <div css={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.85)', pointerEvents: 'none' }}>
+                                <div
+                                    css={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 12,
+                                        fontWeight: 900,
+                                        color: 'rgba(255,255,255,0.85)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
                                     ✕
                                 </div>
                             )}
                         </div>
-                        <div css={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, opacity: isExcluded ? 0.3 : 1 }}>
-                            <input type="number" value={weights[num]} min={0} max={100} disabled={isExcluded}
+                        <div
+                            css={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 2,
+                                opacity: isExcluded ? 0.3 : 1,
+                            }}
+                        >
+                            <input
+                                type='number'
+                                value={weights[num]}
+                                min={0}
+                                max={100}
+                                disabled={isExcluded}
                                 onChange={(e) => onWeight(num, Math.max(0, Math.min(100, Number(e.target.value))))}
                                 css={{
-                                    width: 36, padding: '2px 4px', textAlign: 'center',
-                                    background: colors.background, border: `1px solid ${colors.line}`,
-                                    borderRadius: 4, fontSize: '0.75rem',
+                                    width: 36,
+                                    padding: '2px 4px',
+                                    textAlign: 'center',
+                                    background: colors.background,
+                                    border: `1px solid ${colors.line}`,
+                                    borderRadius: 4,
+                                    fontSize: '0.75rem',
                                     MozAppearance: 'textfield',
                                     '&::-webkit-inner-spin-button': { display: 'none' },
                                     '&::-webkit-outer-spin-button': { display: 'none' },
-                                }} />
+                                }}
+                            />
                             <div css={{ display: 'flex', gap: 2 }}>
                                 {(['−', '+'] as const).map((op) => (
-                                    <button key={op}
-                                        onClick={() => onWeight(num, Math.max(0, Math.min(100, weights[num] + (op === '+' ? 1 : -1))))}
+                                    <button
+                                        key={op}
+                                        onClick={() =>
+                                            onWeight(
+                                                num,
+                                                Math.max(0, Math.min(100, weights[num] + (op === '+' ? 1 : -1))),
+                                            )
+                                        }
                                         disabled={isExcluded || (op === '−' ? weights[num] <= 0 : weights[num] >= 100)}
                                         css={{
-                                            width: 16, height: 14, borderRadius: 2, flexShrink: 0,
-                                            border: `1px solid ${colors.line}`, background: 'none',
-                                            fontSize: '0.7rem', lineHeight: '12px',
+                                            width: 16,
+                                            height: 14,
+                                            borderRadius: 2,
+                                            flexShrink: 0,
+                                            border: `1px solid ${colors.line}`,
+                                            background: 'none',
+                                            fontSize: '0.7rem',
+                                            lineHeight: '12px',
                                             '&:disabled': { opacity: 0.25 },
                                             '&:hover:not(:disabled)': { background: 'rgba(255,255,255,0.1)' },
                                         }}
-                                    >{op}</button>
+                                    >
+                                        {op}
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -262,47 +429,119 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
             <div css={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
                 <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span css={{ fontSize: '0.85rem', opacity: 0.7 }}>수량</span>
-                    <input type="number" value={count} min={1} max={200}
+                    <input
+                        type='number'
+                        value={count}
+                        min={1}
+                        max={200}
                         onChange={(e) => setCount(Math.max(1, Math.min(200, Number(e.target.value))))}
-                        css={{ width: 70, padding: '6px 10px', textAlign: 'center', background: colors.background, border: `1px solid ${colors.line}`, borderRadius: 4, fontSize: '0.9rem' }} />
+                        css={{
+                            width: 70,
+                            padding: '6px 10px',
+                            textAlign: 'center',
+                            background: colors.background,
+                            border: `1px solid ${colors.line}`,
+                            borderRadius: 4,
+                            fontSize: '0.9rem',
+                        }}
+                    />
                 </div>
-                <button onClick={() => setCombos(genCombos(excluded, weights, count))}
-                    css={{ padding: '7px 20px', background: '#7C3AED', borderRadius: 4, fontSize: '0.9rem', fontWeight: 'bold', '&:hover': { background: '#6d28d9' } }}>
+                <button
+                    onClick={() => setCombos(genCombos(excluded, weights, count))}
+                    css={{
+                        padding: '7px 20px',
+                        background: '#7C3AED',
+                        borderRadius: 4,
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        '&:hover': { background: '#6d28d9' },
+                    }}
+                >
                     생성하기
                 </button>
                 {combos.length > 0 && (
-                    <button onClick={() => downloadCSV(filteredCombos)} css={btnOutline}>엑셀 다운로드</button>
+                    <button onClick={() => downloadCSV(filteredCombos)} css={btnOutline}>
+                        엑셀 다운로드
+                    </button>
                 )}
             </div>
 
             {combos.length > 0 && (
                 <>
-                    <div css={{ background: 'rgba(0,0,0,0.2)', borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}>
+                    <div
+                        css={{ background: 'rgba(0,0,0,0.2)', borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}
+                    >
                         <p css={{ fontSize: '0.75rem', opacity: 0.5, marginBottom: 12 }}>결과 필터 (실시간 적용)</p>
                         <div css={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                            <CheckboxFilter label="홀/짝 (홀 기준)" values={[0,1,2,3,4,5,6]} selected={filter.odd} onChange={(v) => setF('odd', v)} />
-                            <CheckboxFilter label="고/저 (고 기준)" values={[0,1,2,3,4,5,6]} selected={filter.high} onChange={(v) => setF('high', v)} />
-                            <CheckboxFilter label="AC값" values={[0,1,2,3,4,5,6,7,8,9]} selected={filter.ac} onChange={(v) => setF('ac', v)} />
-                            <RangeInput label="번호합" value={filter.sum} onChange={(v) => setF('sum', v)} min={21} max={270} />
+                            <CheckboxFilter
+                                label='홀/짝 (홀 기준)'
+                                values={[0, 1, 2, 3, 4, 5, 6]}
+                                selected={filter.odd}
+                                onChange={(v) => setF('odd', v)}
+                            />
+                            <CheckboxFilter
+                                label='고/저 (고 기준)'
+                                values={[0, 1, 2, 3, 4, 5, 6]}
+                                selected={filter.high}
+                                onChange={(v) => setF('high', v)}
+                            />
+                            <CheckboxFilter
+                                label='AC값'
+                                values={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+                                selected={filter.ac}
+                                onChange={(v) => setF('ac', v)}
+                            />
+                            <RangeInput
+                                label='번호합'
+                                value={filter.sum}
+                                onChange={(v) => setF('sum', v)}
+                                min={21}
+                                max={270}
+                            />
                             <div>
                                 <div css={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                    <span css={{ fontSize: '0.82rem', opacity: 0.8 }}>고정수 {filter.fixed.size > 0 && `(${filter.fixed.size}개)`}</span>
+                                    <span css={{ fontSize: '0.82rem', opacity: 0.8 }}>
+                                        고정수 {filter.fixed.size > 0 && `(${filter.fixed.size}개)`}
+                                    </span>
                                     {filter.fixed.size > 0 && (
-                                        <button onClick={() => setF('fixed', new Set())} css={{ fontSize: '0.75rem', color: '#f87171', background: 'none', padding: 0 }}>전체 해제</button>
+                                        <button
+                                            onClick={() => setF('fixed', new Set())}
+                                            css={{
+                                                fontSize: '0.75rem',
+                                                color: '#f87171',
+                                                background: 'none',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            전체 해제
+                                        </button>
                                     )}
                                 </div>
                                 <div css={{ overflowX: 'auto' }}>
-                                    <div css={{ display: 'flex', gap: 6, flexWrap: 'nowrap', minWidth: 'max-content', paddingBottom: 4 }}>
+                                    <div
+                                        css={{
+                                            display: 'flex',
+                                            gap: 6,
+                                            flexWrap: 'nowrap',
+                                            minWidth: 'max-content',
+                                            paddingBottom: 4,
+                                        }}
+                                    >
                                         {Array.from({ length: 45 }, (_, i) => i + 1).map((num) => {
                                             const isFixed = filter.fixed.has(num);
                                             return (
-                                                <NumberButton key={num} number={num} size="md" mobileSize="sm"
+                                                <NumberButton
+                                                    key={num}
+                                                    number={num}
+                                                    size='md'
+                                                    mobileSize='sm'
                                                     selected={isFixed}
                                                     onClick={() => {
                                                         const next = new Set(filter.fixed);
                                                         isFixed ? next.delete(num) : next.add(num);
                                                         setF('fixed', next);
-                                                    }} />
+                                                    }}
+                                                />
                                             );
                                         })}
                                     </div>
@@ -316,11 +555,31 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                     </p>
                     <div css={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                         {filteredCombos.map((combo, i) => (
-                            <div key={i} css={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.line}`, borderRadius: 8, padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <div
+                                key={i}
+                                css={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: `1px solid ${colors.line}`,
+                                    borderRadius: 8,
+                                    padding: '10px 14px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 8,
+                                }}
+                            >
                                 <div css={{ display: 'flex', gap: 5 }}>
-                                    {combo.nums.map((num) => <NumberButton key={num} number={num} size="sm" disabled />)}
+                                    {combo.nums.map((num) => (
+                                        <NumberButton key={num} number={num} size='md' mobileSize='sm' disabled />
+                                    ))}
                                 </div>
-                                <div css={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                <div
+                                    css={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                    }}
+                                >
                                     <div css={{ display: 'flex', gap: 10 }}>
                                         {[
                                             { label: '합', value: combo.sum },
@@ -334,7 +593,18 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                                             </div>
                                         ))}
                                     </div>
-                                    <button onClick={() => saveToLibrary(combo.nums)} css={{ padding: '4px 10px', flexShrink: 0, border: `1px solid ${colors.line}`, borderRadius: 4, fontSize: '0.75rem', background: 'none', '&:hover': { background: 'rgba(255,255,255,0.08)' } }}>
+                                    <button
+                                        onClick={() => saveToLibrary(combo.nums)}
+                                        css={{
+                                            padding: '4px 10px',
+                                            flexShrink: 0,
+                                            border: `1px solid ${colors.line}`,
+                                            borderRadius: 4,
+                                            fontSize: '0.75rem',
+                                            background: 'none',
+                                            '&:hover': { background: 'rgba(255,255,255,0.08)' },
+                                        }}
+                                    >
                                         서재에 담기
                                     </button>
                                 </div>
@@ -353,22 +623,29 @@ const GenerateTab = () => {
     const [weights, setWeights] = useState<Record<number, number>>(defaultWeights);
 
     const toggleExclude = (n: number) =>
-        setExcluded((prev) => { const next = new Set(prev); next.has(n) ? next.delete(n) : next.add(n); return next; });
+        setExcluded((prev) => {
+            const next = new Set(prev);
+            next.has(n) ? next.delete(n) : next.add(n);
+            return next;
+        });
 
-    const updateWeight = (num: number, value: number) =>
-        setWeights((prev) => ({ ...prev, [num]: value }));
+    const updateWeight = (num: number, value: number) => setWeights((prev) => ({ ...prev, [num]: value }));
 
     return (
         <div css={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Panel1And2
-                excluded={excluded} onToggle={toggleExclude}
+                excluded={excluded}
+                onToggle={toggleExclude}
                 onClearExclude={() => setExcluded(new Set())}
                 onLoadExclude={() => setExcluded(new Set(DUMMY_EXCLUDE))}
-                weights={weights} onWeight={updateWeight}
+                weights={weights}
+                onWeight={updateWeight}
                 onResetWeights={() => setWeights(defaultWeights())}
                 onLoadWeights={() => {
                     const wMap: Record<number, number> = {};
-                    DUMMY_WEIGHTS.forEach(({ num, w }) => { wMap[num] = w; });
+                    DUMMY_WEIGHTS.forEach(({ num, w }) => {
+                        wMap[num] = w;
+                    });
                     setWeights(wMap);
                 }}
             />
