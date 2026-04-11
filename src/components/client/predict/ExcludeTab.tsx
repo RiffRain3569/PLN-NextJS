@@ -21,13 +21,22 @@ const HistoryBall = ({ num, isWin }: { num: number; isWin: boolean }) =>
     isWin ? (
         <NumberButton number={num} size="md" mobileSize="sm" disabled />
     ) : (
-        <div css={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, fontWeight: 'bold', color: '#4b5563', flexShrink: 0, border: '1px solid #2a2a2a',
-        }}>
-            {num}
-        </div>
+        <NumberButton
+            number={num}
+            size="md"
+            mobileSize="sm"
+            disabled
+            css={{
+                background: '#1a1a1a',
+                boxShadow: 'none',
+                color: '#4b5563',
+                border: '1px solid #2a2a2a',
+                '&:disabled': {
+                    background: '#1a1a1a',
+                    boxShadow: 'none',
+                },
+            }}
+        />
     );
 
 const ExcludeTab = () => (

@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import NumberButton from '@components/_ui/button/NumberButton';
 import { colors } from '@components/_layout/client/theme/colors';
+import NumberButton from '@components/_ui/button/NumberButton';
 
 const makeWeights = (seed: number) =>
     Array.from({ length: 45 }, (_, i) => ({
@@ -25,15 +25,24 @@ const panelCss = {
 
 const HistoryBall = ({ num, isWin }: { num: number; isWin: boolean }) =>
     isWin ? (
-        <NumberButton number={num} size="md" mobileSize="sm" disabled />
+        <NumberButton number={num} size='md' mobileSize='sm' disabled />
     ) : (
-        <div css={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, fontWeight: 'bold', color: '#4b5563', flexShrink: 0, border: '1px solid #2a2a2a',
-        }}>
-            {num}
-        </div>
+        <NumberButton
+            number={num}
+            size='md'
+            mobileSize='sm'
+            disabled
+            css={{
+                background: '#1a1a1a',
+                boxShadow: 'none',
+                color: '#4b5563',
+                border: '1px solid #2a2a2a',
+                '&:disabled': {
+                    background: '#1a1a1a',
+                    boxShadow: 'none',
+                },
+            }}
+        />
     );
 
 const WeightTab = () => (
@@ -44,7 +53,10 @@ const WeightTab = () => (
                 <div css={{ overflowX: 'auto' }}>
                     <div css={{ display: 'flex', gap: 8, minWidth: 'max-content', paddingBottom: 4 }}>
                         {item.weights.map(({ num, w }) => (
-                            <div key={num} css={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                            <div
+                                key={num}
+                                css={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}
+                            >
                                 <HistoryBall num={num} isWin={item.winNums.includes(num)} />
                                 <span css={{ fontSize: '0.65rem', opacity: 0.55 }}>{w}</span>
                             </div>
