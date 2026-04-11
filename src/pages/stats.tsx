@@ -60,7 +60,7 @@ const FreqTab = ({ fromId, toId, includeBonus }: FilterParams) => {
             <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {sorted.map(({ num, cnt }: { num: number; cnt: number }) => (
                     <div key={num} css={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div css={{ width: 32, flexShrink: 0 }}><NumberButton number={num} disabled /></div>
+                        <div css={{ width: 32, flexShrink: 0 }}><NumberButton number={num} disabled mobileSize="sm" /></div>
                         <div css={{ flex: 1 }}><Bar value={cnt} max={max} /></div>
                         <p css={{ fontSize: '0.8rem', width: 32, textAlign: 'right', opacity: 0.8 }}>{cnt}</p>
                     </div>
@@ -89,7 +89,7 @@ const HotColdTab = ({ fromId, toId, includeBonus }: FilterParams) => {
                 <div css={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                     {hot.map(({ num, cnt }) => (
                         <div key={num} css={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                            <NumberButton number={num} disabled />
+                            <NumberButton number={num} disabled mobileSize="sm" />
                             <p css={{ fontSize: '0.65rem', opacity: 0.6 }}>{cnt}회 전</p>
                         </div>
                     ))}
@@ -99,7 +99,7 @@ const HotColdTab = ({ fromId, toId, includeBonus }: FilterParams) => {
                 <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {cold.map(({ num, cnt }) => (
                         <div key={num} css={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div css={{ width: 32, flexShrink: 0 }}><NumberButton number={num} disabled /></div>
+                            <div css={{ width: 32, flexShrink: 0 }}><NumberButton number={num} disabled mobileSize="sm" /></div>
                             <div css={{ flex: 1 }}><Bar value={cnt} max={maxCold} color='#5AC8FA' /></div>
                             <p css={{ fontSize: '0.8rem', width: 40, textAlign: 'right', opacity: 0.8 }}>{cnt}회 전</p>
                         </div>

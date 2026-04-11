@@ -2,223 +2,816 @@
 import { colors } from '@components/_layout/client/theme/colors';
 import View from '@components/_layout/client/View';
 import NumberButton from '@components/_ui/button/NumberButton';
-import { savePickState } from '@store/lotto';
-import { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { shuffleArray } from 'utils/common';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 import { is_ban_patten } from 'utils/lotto';
 
-// 임시 더미 예측 번호 풀 (API 연동 전)
-const DUMMY_PICK_POOL = [3, 6, 7, 9, 10, 14, 15, 17, 18, 20, 23, 24, 25, 27, 38];
+// ─── Types ──────────────────────────────────────────────────────────
+type Tab = 'generate' | 'exclude' | 'weight';
+type Combo = { nums: number[]; sum: number; oddCnt: number; highCnt: number; ac: number };
+type FilterRange = [number, number];
+type FilterState = {
+    odd: Set<number> | null; // null = 비활성, Set = 허용 홀수 개수
+    high: Set<number> | null; // null = 비활성, Set = 허용 고수 개수
+    sum: FilterRange | null;
+    ac: Set<number> | null; // null = 비활성, Set = 허용 AC값
+    fixed: Set<number>;
+};
 
-type Combo = { nums: number[]; sum: number; oddCnt: number; highCnt: number };
+// ─── Dummy data ──────────────────────────────────────────────────────
+const DUMMY_EXCLUDE_HISTORY = [
+    { id: 1216, winNums: [3, 14, 22, 31, 38, 45], excludeNums: [8, 11, 17, 22, 31, 36, 42] },
+    { id: 1215, winNums: [7, 11, 21, 30, 37, 43], excludeNums: [2, 9, 15, 21, 32, 38, 44] },
+    { id: 1214, winNums: [4, 12, 19, 28, 35, 41], excludeNums: [1, 10, 16, 25, 28, 39, 45] },
+    { id: 1213, winNums: [6, 13, 24, 29, 36, 40], excludeNums: [3, 13, 20, 26, 33, 41, 43] },
+    { id: 1212, winNums: [2, 9, 18, 27, 34, 42], excludeNums: [5, 14, 22, 29, 35, 40, 45] },
+];
+
+const makeWeights = (seed: number) =>
+    Array.from({ length: 45 }, (_, i) => ({
+        num: i + 1,
+        w: (((i + 1) * ((seed % 10) + 7) + seed) % 91) + 10,
+    })).sort((a, b) => b.w - a.w);
+
+const DUMMY_WEIGHT_HISTORY = [
+    { id: 1216, winNums: [3, 14, 22, 31, 38, 45], weights: makeWeights(1216) },
+    { id: 1215, winNums: [7, 11, 21, 30, 37, 43], weights: makeWeights(1215) },
+    { id: 1214, winNums: [4, 12, 19, 28, 35, 41], weights: makeWeights(1214) },
+    { id: 1213, winNums: [6, 13, 24, 29, 36, 40], weights: makeWeights(1213) },
+    { id: 1212, winNums: [2, 9, 18, 27, 34, 42], weights: makeWeights(1212) },
+];
+
+// ─── Utils ──────────────────────────────────────────────────────────
+const calcAC = (nums: number[]) => {
+    const s = [...nums].sort((a, b) => a - b);
+    const diffs = new Set<number>();
+    for (let i = 0; i < s.length; i++) for (let j = i + 1; j < s.length; j++) diffs.add(s[j] - s[i]);
+    return diffs.size - (s.length - 1);
+};
 
 const calcStats = (nums: number[]): Combo => ({
     nums,
     sum: nums.reduce((a, b) => a + b, 0),
     oddCnt: nums.filter((n) => n % 2 === 1).length,
     highCnt: nums.filter((n) => n >= 23).length,
+    ac: calcAC(nums),
 });
 
-const genCombos = (pool: number[], count: number, useBan: boolean): Combo[] => {
-    const result: Combo[] = [];
-    for (let i = 0; i < count * 20; i++) {
-        const nums = shuffleArray(pool).slice(0, 6).sort((a, b) => a - b);
-        if (useBan && is_ban_patten(nums)) continue;
-        if (!result.find((r) => r.nums.join() === nums.join())) {
-            result.push(calcStats(nums));
+const weightedSample = (pool: { num: number; w: number }[], k: number): number[] => {
+    const result: number[] = [];
+    let rem = [...pool];
+    for (let i = 0; i < k && rem.length > 0; i++) {
+        const total = rem.reduce((s, x) => s + x.w, 0);
+        let r = Math.random() * total;
+        let idx = rem.length - 1;
+        for (let j = 0; j < rem.length; j++) {
+            r -= rem[j].w;
+            if (r <= 0) {
+                idx = j;
+                break;
+            }
         }
-        if (result.length >= count) break;
+        result.push(rem[idx].num);
+        rem.splice(idx, 1);
+    }
+    return result.sort((a, b) => a - b);
+};
+
+const genCombos = (excluded: Set<number>, weights: Record<number, number>, count: number): Combo[] => {
+    const pool = Array.from({ length: 45 }, (_, i) => i + 1)
+        .filter((n) => !excluded.has(n) && weights[n] > 0)
+        .map((n) => ({ num: n, w: weights[n] }));
+    if (pool.length < 6) return [];
+    const result: Combo[] = [];
+    for (let attempt = 0; attempt < count * 50 && result.length < count; attempt++) {
+        const nums = weightedSample(pool, 6);
+        if (nums.length < 6 || is_ban_patten(nums)) continue;
+        if (!result.find((r) => r.nums.join() === nums.join())) result.push(calcStats(nums));
     }
     return result;
 };
 
-// ── 번호 풀 표시 ──────────────────────────────────────
-const PoolSection = ({ pool }: { pool: number[] }) => (
-    <div
-        css={{
-            background: colors.background2,
-            padding: '20px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.4)',
-        }}
-    >
-        <p css={{ fontSize: '0.8rem', color: colors.text, opacity: 0.6, marginBottom: 12 }}>
-            예측 번호 풀 ({pool.length}개)
-        </p>
-        <div css={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {pool.map((num) => (
-                <NumberButton key={num} number={num} disabled />
-            ))}
-        </div>
-    </div>
-);
+const downloadCSV = (combos: Combo[]) => {
+    const csv = combos.map((c) => c.nums.join(',')).join('\n');
+    const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })),
+        download: 'lotto.csv',
+    });
+    a.click();
+};
 
-// ── 조합 행 ───────────────────────────────────────────
-const ComboRow = ({ combo, onAdd }: { combo: Combo; onAdd: () => void }) => (
-    <div
-        css={{
-            background: colors.background2,
-            padding: '14px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 12,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-        }}
-    >
-        {/* 번호 */}
-        <div css={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {combo.nums.map((num, i) => (
-                <NumberButton key={i} number={num} disabled />
-            ))}
-        </div>
+const saveToLibrary = (nums: number[]) => {
+    const saved: number[][] = JSON.parse(localStorage.getItem('lotto-saved') || '[]');
+    if (saved.length >= 1000) {
+        alert('서재가 가득 찼습니다 (최대 1000개)');
+        return;
+    }
+    localStorage.setItem('lotto-saved', JSON.stringify([...saved, nums]));
+};
 
-        {/* 통계 + 추가 버튼 */}
-        <div css={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div css={{ display: 'flex', gap: 10 }}>
-                {[
-                    { label: '합', value: combo.sum },
-                    { label: '홀', value: `${combo.oddCnt}:${6 - combo.oddCnt}` },
-                    { label: '고', value: `${combo.highCnt}:${6 - combo.highCnt}` },
-                ].map(({ label, value }) => (
-                    <div key={label} css={{ textAlign: 'center' }}>
-                        <p css={{ fontSize: '0.65rem', opacity: 0.5, marginBottom: 2 }}>{label}</p>
-                        <p css={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{value}</p>
-                    </div>
-                ))}
-            </div>
+const defaultWeights = () => Object.fromEntries(Array.from({ length: 45 }, (_, i) => [i + 1, 50]));
 
+// ─── Common styles ───────────────────────────────────────────────────
+const panelCss = {
+    background: 'rgba(255,255,255,0.04)',
+    borderRadius: 8,
+    padding: '16px 20px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.4)',
+};
+
+const btnOutline = {
+    padding: '6px 14px',
+    border: `1px solid ${colors.line}`,
+    borderRadius: 4,
+    fontSize: '0.8rem',
+    background: 'none',
+    '&:hover': { background: 'rgba(255,255,255,0.06)' },
+} as const;
+
+// ─── TabBar ──────────────────────────────────────────────────────────
+const TABS: { id: Tab; label: string }[] = [
+    { id: 'generate', label: '번호 생성' },
+    { id: 'exclude', label: '제외수 이력' },
+    { id: 'weight', label: '가중치 이력' },
+];
+
+const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => (
+    <div css={{ display: 'flex', borderBottom: `1px solid ${colors.line}`, marginBottom: 20 }}>
+        {TABS.map((t) => (
             <button
-                onClick={onAdd}
+                key={t.id}
+                onClick={() => onChange(t.id)}
                 css={{
-                    padding: '6px 14px',
-                    background: colors.primary.main,
-                    fontSize: '0.8rem',
-                    borderRadius: 2,
-                    '&:hover': { background: colors.primary.dark },
+                    padding: '10px 20px',
+                    fontSize: '0.9rem',
+                    fontWeight: active === t.id ? 'bold' : 'normal',
+                    color: active === t.id ? colors.white : `${colors.text}99`,
+                    borderBottom: active === t.id ? `2px solid ${colors.white}` : '2px solid transparent',
+                    marginBottom: -1,
+                    background: 'none',
+                    transition: 'all 0.2s',
+                    '&:hover': { color: colors.white },
                 }}
             >
-                담기
+                {t.label}
             </button>
+        ))}
+    </div>
+);
+
+// ─── HistoryBall (B/C탭용) ───────────────────────────────────────────
+const HistoryBall = ({ num, isWin }: { num: number; isWin: boolean }) =>
+    isWin ? (
+        <NumberButton number={num} size='md' mobileSize='sm' disabled />
+    ) : (
+        <div
+            css={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: '#1a1a1a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 12,
+                fontWeight: 'bold',
+                color: '#4b5563',
+                flexShrink: 0,
+                border: '1px solid #2a2a2a',
+            }}
+        >
+            {num}
+        </div>
+    );
+
+// ─── Panel 1+2: 제외 + 가중치 통합 ──────────────────────────────────
+const Panel1And2 = ({
+    excluded,
+    onToggle,
+    onClearExclude,
+    onLoadExclude,
+    weights,
+    onWeight,
+    onResetWeights,
+    onLoadWeights,
+}: {
+    excluded: Set<number>;
+    onToggle: (n: number) => void;
+    onClearExclude: () => void;
+    onLoadExclude: () => void;
+    weights: Record<number, number>;
+    onWeight: (num: number, value: number) => void;
+    onResetWeights: () => void;
+    onLoadWeights: () => void;
+}) => (
+    <div css={panelCss}>
+        {/* 헤더 */}
+        <div
+            css={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 16,
+                flexWrap: 'wrap',
+                gap: 8,
+            }}
+        >
+            <div css={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <p css={{ fontSize: '0.9rem', fontWeight: 'bold', color: colors.white }}>번호 설정</p>
+                <button
+                    onClick={onClearExclude}
+                    css={{
+                        fontSize: '0.78rem',
+                        opacity: 0.5,
+                        background: 'none',
+                        padding: 0,
+                        '&:hover': { opacity: 1 },
+                    }}
+                >
+                    제외수 초기화
+                </button>
+                <button
+                    onClick={onResetWeights}
+                    css={{
+                        fontSize: '0.78rem',
+                        opacity: 0.5,
+                        background: 'none',
+                        padding: 0,
+                        '&:hover': { opacity: 1 },
+                    }}
+                >
+                    가중치 초기화
+                </button>
+            </div>
+            <div css={{ display: 'flex', gap: 8 }}>
+                <button onClick={onLoadExclude} css={btnOutline}>
+                    추천 제외수
+                </button>
+                <button onClick={onLoadWeights} css={btnOutline}>
+                    추천 가중치
+                </button>
+            </div>
+        </div>
+
+        {/* 웹: 7열 고정 / 모바일: flex-wrap */}
+        <div
+            css={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, auto)',
+                gap: 10,
+                '@media (max-width: 768px)': {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                },
+            }}
+        >
+            {Array.from({ length: 45 }, (_, i) => i + 1).map((num) => {
+                const isExcluded = excluded.has(num);
+                return (
+                    <div key={num} css={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {/* 볼 (클릭 → 제외 토글) */}
+                        <div
+                            onClick={() => onToggle(num)}
+                            css={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}
+                        >
+                            <div css={{ opacity: isExcluded ? 0.25 : 1, transition: 'opacity 0.15s' }}>
+                                <NumberButton number={num} size='md' mobileSize='sm' disabled />
+                            </div>
+                            {isExcluded && (
+                                <div
+                                    css={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 12,
+                                        fontWeight: 900,
+                                        color: 'rgba(255,255,255,0.85)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    ✕
+                                </div>
+                            )}
+                        </div>
+                        {/* 가중치 입력 + −/+ */}
+                        <div
+                            css={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 2,
+                                opacity: isExcluded ? 0.3 : 1,
+                            }}
+                        >
+                            <input
+                                type='number'
+                                value={weights[num]}
+                                min={0}
+                                max={100}
+                                disabled={isExcluded}
+                                onChange={(e) => onWeight(num, Math.max(0, Math.min(100, Number(e.target.value))))}
+                                css={{
+                                    width: 36,
+                                    padding: '2px 4px',
+                                    textAlign: 'center',
+                                    background: colors.background,
+                                    border: `1px solid ${colors.line}`,
+                                    borderRadius: 4,
+                                    fontSize: '0.75rem',
+                                    MozAppearance: 'textfield',
+                                    '&::-webkit-inner-spin-button': { display: 'none' },
+                                    '&::-webkit-outer-spin-button': { display: 'none' },
+                                }}
+                            />
+                            <div css={{ display: 'flex', gap: 2 }}>
+                                {(['−', '+'] as const).map((op) => (
+                                    <button
+                                        key={op}
+                                        onClick={() =>
+                                            onWeight(
+                                                num,
+                                                Math.max(0, Math.min(100, weights[num] + (op === '+' ? 1 : -1))),
+                                            )
+                                        }
+                                        disabled={isExcluded || (op === '−' ? weights[num] <= 0 : weights[num] >= 100)}
+                                        css={{
+                                            width: 16,
+                                            height: 14,
+                                            borderRadius: 2,
+                                            flexShrink: 0,
+                                            border: `1px solid ${colors.line}`,
+                                            background: 'none',
+                                            fontSize: '0.7rem',
+                                            lineHeight: '12px',
+                                            '&:disabled': { opacity: 0.25 },
+                                            '&:hover:not(:disabled)': { background: 'rgba(255,255,255,0.1)' },
+                                        }}
+                                    >
+                                        {op}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     </div>
 );
 
-// ── 메인 페이지 ───────────────────────────────────────
-const PredictPage = () => {
+// ─── Checkbox Filter ─────────────────────────────────────────────────
+const CheckboxFilter = ({
+    label,
+    values,
+    selected,
+    onChange,
+}: {
+    label: string;
+    values: number[];
+    selected: Set<number> | null;
+    onChange: (v: Set<number> | null) => void;
+}) => {
+    const isOn = selected !== null;
+    const toggle = (v: number) => {
+        const next = new Set(selected ?? []);
+        next.has(v) ? next.delete(v) : next.add(v);
+        onChange(next.size === 0 ? null : next);
+    };
+    return (
+        <div css={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span css={{ fontSize: '0.82rem', opacity: 0.7, flexShrink: 0, width: 38 }}>{label}</span>
+            {values.map((v) => {
+                const checked = isOn && selected!.has(v);
+                return (
+                    <button
+                        key={v}
+                        onClick={() => toggle(v)}
+                        css={{
+                            minWidth: 28,
+                            height: 24,
+                            padding: '0 6px',
+                            borderRadius: 4,
+                            fontSize: '0.78rem',
+                            fontWeight: checked ? 'bold' : 'normal',
+                            border: `1px solid ${checked ? '#7C3AED' : colors.line}`,
+                            background: checked ? 'rgba(124,58,237,0.25)' : 'none',
+                            color: checked ? '#c4b5fd' : `${colors.text}88`,
+                            transition: 'all 0.15s',
+                        }}
+                    >
+                        {v}
+                    </button>
+                );
+            })}
+            {isOn && (
+                <button
+                    onClick={() => onChange(null)}
+                    css={{ fontSize: '0.72rem', color: '#f87171', background: 'none', padding: 0 }}
+                >
+                    해제
+                </button>
+            )}
+        </div>
+    );
+};
+
+// ─── Filter Range Input ───────────────────────────────────────────────
+const RangeInput = ({
+    label,
+    value,
+    onChange,
+    min,
+    max,
+}: {
+    label: string;
+    value: FilterRange | null;
+    onChange: (v: FilterRange | null) => void;
+    min: number;
+    max: number;
+}) => {
+    const isOn = value !== null;
+    const v = value ?? [min, max];
+    const inputCss = {
+        width: 52,
+        padding: '4px 6px',
+        textAlign: 'center' as const,
+        background: colors.background,
+        border: `1px solid ${colors.line}`,
+        borderRadius: 4,
+        fontSize: '0.82rem',
+        opacity: isOn ? 1 : 0.35,
+    };
+    return (
+        <div css={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button
+                onClick={() => onChange(isOn ? null : [min, max])}
+                css={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 3,
+                    flexShrink: 0,
+                    border: `1px solid ${isOn ? '#7C3AED' : colors.line}`,
+                    background: isOn ? '#7C3AED' : 'none',
+                    fontSize: 10,
+                    color: 'white',
+                }}
+            >
+                {isOn ? '✓' : ''}
+            </button>
+            <span css={{ fontSize: '0.82rem', width: 38, flexShrink: 0, opacity: 0.8 }}>{label}</span>
+            <input
+                type='number'
+                value={v[0]}
+                min={min}
+                max={v[1]}
+                disabled={!isOn}
+                onChange={(e) => onChange([Math.max(min, Math.min(Number(e.target.value), v[1])), v[1]])}
+                css={inputCss}
+            />
+            <span css={{ opacity: 0.4, fontSize: '0.8rem' }}>~</span>
+            <input
+                type='number'
+                value={v[1]}
+                min={v[0]}
+                max={max}
+                disabled={!isOn}
+                onChange={(e) => onChange([v[0], Math.max(Number(e.target.value), v[0])])}
+                css={inputCss}
+            />
+        </div>
+    );
+};
+
+// ─── Panel 3: 번호 생성 ──────────────────────────────────────────────
+const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights: Record<number, number> }) => {
+    const [count, setCount] = useState(10);
     const [combos, setCombos] = useState<Combo[]>([]);
-    const [count, setCount] = useState(5);
-    const [useBan, setUseBan] = useState(true);
-    const [curSavePick, setSavePick] = useRecoilState<(number[] | null)[]>(savePickState);
+    const [filter, setFilter] = useState<FilterState>({ odd: null, high: null, sum: null, ac: null, fixed: new Set() });
 
-    const handleGenerate = () => {
-        setCombos(genCombos(DUMMY_PICK_POOL, count, useBan));
-    };
+    const filteredCombos = useMemo(() => {
+        let list = combos;
+        if (filter.odd) list = list.filter((c) => filter.odd!.has(c.oddCnt));
+        if (filter.high) list = list.filter((c) => filter.high!.has(c.highCnt));
+        if (filter.sum) list = list.filter((c) => c.sum >= filter.sum![0] && c.sum <= filter.sum![1]);
+        if (filter.ac) list = list.filter((c) => filter.ac!.has(c.ac));
+        if (filter.fixed.size > 0) list = list.filter((c) => [...filter.fixed].every((n) => c.nums.includes(n)));
+        return list;
+    }, [combos, filter]);
 
-    const handleAdd = (nums: number[]) => {
-        if (curSavePick.length >= 5) {
-            alert('저장함이 가득 찼습니다 (최대 5개)');
-            return;
-        }
-        setSavePick((s) => [...s, nums]);
-        alert(`저장함에 추가됨 (${curSavePick.length + 1}/5)`);
-    };
+    const setF = <K extends keyof FilterState>(key: K, val: FilterState[K]) => setFilter((f) => ({ ...f, [key]: val }));
+
+    return (
+        <div css={panelCss}>
+            <p css={{ fontSize: '0.9rem', fontWeight: 'bold', color: colors.white, marginBottom: 16 }}>번호 생성</p>
+
+            {/* 생성 컨트롤 */}
+            <div css={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+                <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span css={{ fontSize: '0.85rem', opacity: 0.7 }}>수량</span>
+                    <input
+                        type='number'
+                        value={count}
+                        min={1}
+                        max={200}
+                        onChange={(e) => setCount(Math.max(1, Math.min(200, Number(e.target.value))))}
+                        css={{
+                            width: 70,
+                            padding: '6px 10px',
+                            textAlign: 'center',
+                            background: colors.background,
+                            border: `1px solid ${colors.line}`,
+                            borderRadius: 4,
+                            fontSize: '0.9rem',
+                        }}
+                    />
+                </div>
+                <button
+                    onClick={() => setCombos(genCombos(excluded, weights, count))}
+                    css={{
+                        padding: '7px 20px',
+                        background: '#7C3AED',
+                        borderRadius: 4,
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        '&:hover': { background: '#6d28d9' },
+                    }}
+                >
+                    생성하기
+                </button>
+                {combos.length > 0 && (
+                    <button onClick={() => downloadCSV(filteredCombos)} css={btnOutline}>
+                        엑셀 다운로드
+                    </button>
+                )}
+            </div>
+
+            {combos.length > 0 && (
+                <>
+                    {/* 결과 필터 */}
+                    <div
+                        css={{
+                            background: 'rgba(0,0,0,0.2)',
+                            borderRadius: 6,
+                            padding: '14px 16px',
+                            marginBottom: 16,
+                        }}
+                    >
+                        <p css={{ fontSize: '0.75rem', opacity: 0.5, marginBottom: 12 }}>결과 필터 (실시간 적용)</p>
+                        <div css={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <CheckboxFilter
+                                label='홀/짝(홀 기준)'
+                                values={[0, 1, 2, 3, 4, 5, 6]}
+                                selected={filter.odd}
+                                onChange={(v) => setF('odd', v)}
+                            />
+                            <CheckboxFilter
+                                label='고/저(고 기준)'
+                                values={[0, 1, 2, 3, 4, 5, 6]}
+                                selected={filter.high}
+                                onChange={(v) => setF('high', v)}
+                            />
+                            <CheckboxFilter
+                                label='AC값'
+                                values={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+                                selected={filter.ac}
+                                onChange={(v) => setF('ac', v)}
+                            />
+                            <RangeInput
+                                label='번호합'
+                                value={filter.sum}
+                                onChange={(v) => setF('sum', v)}
+                                min={21}
+                                max={270}
+                            />
+                            {/* 고정수 */}
+                            <div>
+                                <div css={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                    <span css={{ fontSize: '0.82rem', opacity: 0.8 }}>
+                                        고정수 {filter.fixed.size > 0 && `(${filter.fixed.size}개)`}
+                                    </span>
+                                    {filter.fixed.size > 0 && (
+                                        <button
+                                            onClick={() => setF('fixed', new Set())}
+                                            css={{
+                                                fontSize: '0.75rem',
+                                                color: '#f87171',
+                                                background: 'none',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            전체 해제
+                                        </button>
+                                    )}
+                                </div>
+                                <div css={{ overflowX: 'auto' }}>
+                                    <div
+                                        css={{
+                                            display: 'flex',
+                                            gap: 6,
+                                            flexWrap: 'nowrap',
+                                            minWidth: 'max-content',
+                                            paddingBottom: 4,
+                                        }}
+                                    >
+                                        {Array.from({ length: 45 }, (_, i) => i + 1).map((num) => {
+                                            const isFixed = filter.fixed.has(num);
+                                            return (
+                                                <NumberButton
+                                                    key={num}
+                                                    number={num}
+                                                    size='md'
+                                                    mobileSize='sm'
+                                                    selected={isFixed}
+                                                    onClick={() => {
+                                                        const next = new Set(filter.fixed);
+                                                        isFixed ? next.delete(num) : next.add(num);
+                                                        setF('fixed', next);
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 결과 카드 */}
+                    <p css={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: 10 }}>
+                        {filteredCombos.length}개 표시 중 (전체 {combos.length}개)
+                    </p>
+                    <div css={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {filteredCombos.map((combo, i) => (
+                            <div
+                                key={i}
+                                css={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: `1px solid ${colors.line}`,
+                                    borderRadius: 8,
+                                    padding: '10px 14px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 8,
+                                }}
+                            >
+                                <div css={{ display: 'flex', gap: 5 }}>
+                                    {combo.nums.map((num) => (
+                                        <NumberButton key={num} number={num} size='sm' disabled />
+                                    ))}
+                                </div>
+                                <div
+                                    css={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                    }}
+                                >
+                                    <div css={{ display: 'flex', gap: 10 }}>
+                                        {[
+                                            { label: '합', value: combo.sum },
+                                            { label: '홀', value: `${combo.oddCnt}:${6 - combo.oddCnt}` },
+                                            { label: '고', value: `${combo.highCnt}:${6 - combo.highCnt}` },
+                                            { label: 'AC', value: combo.ac },
+                                        ].map(({ label, value }) => (
+                                            <div key={label} css={{ textAlign: 'center' }}>
+                                                <p css={{ fontSize: '0.6rem', opacity: 0.45 }}>{label}</p>
+                                                <p css={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{value}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => saveToLibrary(combo.nums)}
+                                        css={{
+                                            padding: '4px 10px',
+                                            flexShrink: 0,
+                                            border: `1px solid ${colors.line}`,
+                                            borderRadius: 4,
+                                            fontSize: '0.75rem',
+                                            background: 'none',
+                                            '&:hover': { background: 'rgba(255,255,255,0.08)' },
+                                        }}
+                                    >
+                                        서재에 담기
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+// ─── Tab A: 번호 생성 ────────────────────────────────────────────────
+const GenerateTab = () => {
+    const [excluded, setExcluded] = useState<Set<number>>(new Set());
+    const [weights, setWeights] = useState<Record<number, number>>(defaultWeights);
+
+    const toggleExclude = (n: number) =>
+        setExcluded((prev) => {
+            const next = new Set(prev);
+            next.has(n) ? next.delete(n) : next.add(n);
+            return next;
+        });
+
+    const updateWeight = (num: number, value: number) => setWeights((prev) => ({ ...prev, [num]: value }));
+
+    return (
+        <div css={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Panel1And2
+                excluded={excluded}
+                onToggle={toggleExclude}
+                onClearExclude={() => setExcluded(new Set())}
+                onLoadExclude={() => setExcluded(new Set(DUMMY_EXCLUDE_HISTORY[0].excludeNums))}
+                weights={weights}
+                onWeight={updateWeight}
+                onResetWeights={() => setWeights(defaultWeights())}
+                onLoadWeights={() => {
+                    const wMap: Record<number, number> = {};
+                    DUMMY_WEIGHT_HISTORY[0].weights.forEach(({ num, w }) => {
+                        wMap[num] = w;
+                    });
+                    setWeights(wMap);
+                }}
+            />
+            <Panel3Generate excluded={excluded} weights={weights} />
+        </div>
+    );
+};
+
+// ─── Tab B: 제외수 이력 ──────────────────────────────────────────────
+const ExcludeTab = () => (
+    <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {DUMMY_EXCLUDE_HISTORY.map((item) => (
+            <div key={item.id} css={{ ...panelCss, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p css={{ fontSize: '0.85rem', fontWeight: 'bold', color: colors.white }}>{item.id}회</p>
+                <div css={{ overflowX: 'auto' }}>
+                    <div css={{ display: 'flex', gap: 6, minWidth: 'max-content', paddingBottom: 4 }}>
+                        {[...item.excludeNums]
+                            .sort((a, b) => a - b)
+                            .map((num) => (
+                                <HistoryBall key={num} num={num} isWin={item.winNums.includes(num)} />
+                            ))}
+                    </div>
+                </div>
+            </div>
+        ))}
+        <p css={{ textAlign: 'center', fontSize: '0.8rem', opacity: 0.35, padding: '16px 0' }}>
+            API 연동 후 전체 이력이 표시됩니다
+        </p>
+    </div>
+);
+
+// ─── Tab C: 가중치 이력 ──────────────────────────────────────────────
+const WeightTab = () => (
+    <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {DUMMY_WEIGHT_HISTORY.map((item) => (
+            <div key={item.id} css={{ ...panelCss, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p css={{ fontSize: '0.85rem', fontWeight: 'bold', color: colors.white }}>{item.id}회</p>
+                <div css={{ overflowX: 'auto' }}>
+                    <div css={{ display: 'flex', gap: 8, minWidth: 'max-content', paddingBottom: 4 }}>
+                        {item.weights.map(({ num, w }) => (
+                            <div
+                                key={num}
+                                css={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}
+                            >
+                                <HistoryBall num={num} isWin={item.winNums.includes(num)} />
+                                <span css={{ fontSize: '0.65rem', opacity: 0.55 }}>{w}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        ))}
+        <p css={{ textAlign: 'center', fontSize: '0.8rem', opacity: 0.35, padding: '16px 0' }}>
+            API 연동 후 전체 이력이 표시됩니다
+        </p>
+    </div>
+);
+
+// ─── Page ────────────────────────────────────────────────────────────
+const PredictPage = () => {
+    const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    const tab: Tab = mounted ? (router.query.tab as Tab) || 'generate' : 'generate';
+    const setTab = (t: Tab) => router.push({ query: { tab: t } }, undefined, { shallow: true });
 
     return (
         <View>
-            <div css={{ padding: '24px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {/* 타이틀 */}
-                <p css={{ fontSize: '1.25rem', fontWeight: 'bold', color: colors.white }}>로또 예측</p>
-
-                {/* 설정 */}
-                <div
-                    css={{
-                        background: colors.background2,
-                        padding: '20px',
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 16,
-                        alignItems: 'flex-end',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.4)',
-                    }}
-                >
-                    {/* 회차 입력 */}
-                    <div>
-                        <p css={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: 6 }}>예측 회차</p>
-                        <input
-                            type='number'
-                            defaultValue={1217}
-                            css={{
-                                width: 100,
-                                padding: '8px 12px',
-                                background: colors.background,
-                                border: `1px solid ${colors.line}`,
-                                fontSize: '0.9rem',
-                            }}
-                        />
-                    </div>
-
-                    {/* 생성 개수 */}
-                    <div>
-                        <p css={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: 6 }}>생성 개수</p>
-                        <input
-                            type='number'
-                            value={count}
-                            min={1}
-                            max={20}
-                            onChange={(e) => setCount(Number(e.target.value))}
-                            css={{
-                                width: 80,
-                                padding: '8px 12px',
-                                background: colors.background,
-                                border: `1px solid ${colors.line}`,
-                                fontSize: '0.9rem',
-                            }}
-                        />
-                    </div>
-
-                    {/* 밴 패턴 토글 */}
-                    <button
-                        onClick={() => setUseBan((v) => !v)}
-                        css={{
-                            padding: '8px 16px',
-                            background: useBan ? colors.primary.main : colors.background,
-                            border: `1px solid ${useBan ? colors.primary.main : colors.line}`,
-                            fontSize: '0.85rem',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        밴 패턴 {useBan ? 'ON' : 'OFF'}
-                    </button>
-
-                    {/* 예측 버튼 */}
-                    <button
-                        onClick={handleGenerate}
-                        css={{
-                            padding: '8px 24px',
-                            background: colors.primary.main,
-                            fontSize: '0.9rem',
-                            fontWeight: 'bold',
-                            '&:hover': { background: colors.primary.dark },
-                        }}
-                    >
-                        번호 생성
-                    </button>
-                </div>
-
-                {/* 번호 풀 */}
-                <PoolSection pool={DUMMY_PICK_POOL} />
-
-                {/* 생성된 조합 */}
-                {combos.length > 0 && (
-                    <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <p css={{ fontSize: '0.85rem', opacity: 0.6 }}>{combos.length}개 조합 생성됨</p>
-                        {combos.map((combo, i) => (
-                            <ComboRow key={i} combo={combo} onAdd={() => handleAdd(combo.nums)} />
-                        ))}
-                    </div>
-                )}
+            <div css={{ padding: '24px 0' }}>
+                <p css={{ fontSize: '1.25rem', fontWeight: 'bold', color: colors.white, marginBottom: 20 }}>
+                    로또 예측
+                </p>
+                <TabBar active={tab} onChange={setTab} />
+                {tab === 'generate' && <GenerateTab />}
+                {tab === 'exclude' && <ExcludeTab />}
+                {tab === 'weight' && <WeightTab />}
             </div>
         </View>
     );

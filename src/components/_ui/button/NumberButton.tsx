@@ -6,6 +6,7 @@ type Types = {
     number: number;
     selected?: boolean;
     size?: Size;
+    mobileSize?: Size;
 };
 
 // 동행복권 공식 볼 색상 기준
@@ -21,7 +22,7 @@ const theme = {
 
 const sizes: Record<Size, { ball: number; font: number }> = {
     sm: { ball: 36, font: 13 },
-    md: { ball: 40, font: 14 }, // default
+    md: { ball: 40, font: 14 },
     lg: { ball: 44, font: 15 },
 };
 
@@ -34,9 +35,11 @@ const getTheme = (number: number, selected?: boolean) => {
     return theme.ltt4x;
 };
 
-const NumberButton = ({ number, selected, size = 'md', ...props }: Types & ButtonHTMLAttributes<HTMLButtonElement>) => {
+const NumberButton = ({ number, selected, size = 'md', mobileSize, ...props }: Types & ButtonHTMLAttributes<HTMLButtonElement>) => {
     const t = getTheme(number, selected);
     const s = sizes[size];
+    const ms = sizes[mobileSize ?? size];
+
     return (
         <button
             css={{
@@ -52,6 +55,12 @@ const NumberButton = ({ number, selected, size = 'md', ...props }: Types & Butto
                 background: `radial-gradient(circle at 35% 35%, ${t.main}, ${t.dark})`,
                 boxShadow: `0 0 6px ${t.main}66`,
                 flexShrink: 0,
+                '@media (max-width: 768px)': {
+                    width: ms.ball,
+                    height: ms.ball,
+                    lineHeight: `${ms.ball}px`,
+                    fontSize: ms.font,
+                },
                 '&:hover': {
                     background: `radial-gradient(circle at 35% 35%, ${theme.hovered.main}, ${theme.hovered.dark})`,
                     boxShadow: `0 0 8px ${theme.hovered.main}88`,

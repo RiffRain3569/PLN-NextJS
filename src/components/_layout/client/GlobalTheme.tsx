@@ -155,6 +155,22 @@ const style = css`
     //     background: #e2e2e2;
     // }
 
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
     /* Input Styles */
     // input,
     // textarea,

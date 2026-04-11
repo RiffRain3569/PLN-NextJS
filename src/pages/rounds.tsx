@@ -73,11 +73,11 @@ const RoundRow = ({
 
             <div css={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 {sorted.map((num, i) => (
-                    <NumberButton key={i} number={num} disabled />
+                    <NumberButton key={i} number={num} disabled mobileSize="sm" />
                 ))}
                 <span css={{ color: colors.text, opacity: 0.4, margin: '0 2px', fontSize: '0.9rem' }}>+</span>
                 <div css={{ position: 'relative' }}>
-                    <NumberButton number={round.bonus} disabled />
+                    <NumberButton number={round.bonus} disabled mobileSize="sm" />
                     <div
                         css={{
                             position: 'absolute',
