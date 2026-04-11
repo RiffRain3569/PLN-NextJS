@@ -36,6 +36,7 @@ const AdminMainPage = () => {
         mutationFn: dhlBuyLotto,
         onSuccess: (res: any) => {
             alert(res?.message);
+            setReset(true);
         },
         onError: (error: any) => {
             alert(JSON.stringify(error));
