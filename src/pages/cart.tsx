@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 
 const Page = () => {
-    const { uid, amount, setReset } = useDhl();
+    const { userId: uid, amount, setReset } = useDhl();
     const [curBuyResult, setBuyResult] = useState('');
     const [message, setMessage] = useState('');
     const { getValues, register, handleSubmit, watch } = useForm();

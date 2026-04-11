@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { CacheProvider, EmotionCache } from '@emotion/react';
+import createEmotionCache from '@lib/emotionCache';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import createEmotionCache from '@lib/emotionCache';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { ReactNode } from 'react';
@@ -22,24 +22,24 @@ interface MyAppProps extends AppProps {
 function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: MyAppProps) {
     return (
         <CacheProvider value={emotionCache}>
-        <QueryClientProvider client={queryClient}>
-            <RecoilRoot>
-                <Head>
-                    <link rel='icon' type='image/png' href='/favicon/favicon-96x96.png' sizes='96x96' />
-                    <link rel='icon' type='image/svg+xml' href='/favicon/favicon.svg' />
-                    <link rel='shortcut icon' href='/favicon/favicon.ico' />
-                    <link rel='apple-touch-icon' sizes='180x180' href='/favicon/apple-touch-icon.png' />
-                    <meta name='apple-mobile-web-app-title' content='PLN' />
-                    <meta name='apple-mobile-web-app-capable' content='yes' />
-                    <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
-                    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-                </Head>
-                <Wrapped>
-                    <Component {...pageProps} />
-                </Wrapped>
-                <ReactQueryDevtools initialIsOpen={false} />
-            </RecoilRoot>
-        </QueryClientProvider>
+            <QueryClientProvider client={queryClient}>
+                <RecoilRoot>
+                    <Head>
+                        <link rel='icon' type='image/png' href='/favicon/favicon-96x96.png' sizes='96x96' />
+                        <link rel='icon' type='image/svg+xml' href='/favicon/favicon.svg' />
+                        <link rel='shortcut icon' href='/favicon/favicon.ico' />
+                        <link rel='apple-touch-icon' sizes='180x180' href='/favicon/apple-touch-icon.png' />
+                        <meta name='apple-mobile-web-app-title' content='PLN' />
+                        <meta name='mobile-web-app-capable' content='yes' />
+                        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+                        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+                    </Head>
+                    <Wrapped>
+                        <Component {...pageProps} />
+                    </Wrapped>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </RecoilRoot>
+            </QueryClientProvider>
         </CacheProvider>
     );
 }

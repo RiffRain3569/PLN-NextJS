@@ -1,5 +1,3 @@
-const { randomUUID } = require('crypto');
-
 const withPWA = require('next-pwa')({
     dest: 'public',
     disable: process.env.NODE_ENV === 'development',
@@ -12,10 +10,6 @@ const nextConfig = {
     swcMinify: true,
     env: {
         LOTTO_API_HOST: process.env.LOTTO_API_HOST,
-    },
-    generateBuildId: async () => {
-        // You can, for example, get the latest git commit hash here
-        return randomUUID();
     },
 };
 
