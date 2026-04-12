@@ -116,7 +116,7 @@ const Header = ({ width, height }: { width?: string | number; height?: string | 
                     },
                 }}
             >
-                {NAV_ITEMS.map((el) => {
+                {NAV_ITEMS.filter((el) => el.path !== '/').map((el) => {
                     const isActive = mounted && router.pathname === el.path;
                     return (
                         <Link
