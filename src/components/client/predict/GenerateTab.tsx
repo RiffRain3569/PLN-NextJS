@@ -3,6 +3,7 @@ import { colors } from '@components/_layout/client/theme/colors';
 import NumberButton from '@components/_ui/button/NumberButton';
 import { useMemo, useState } from 'react';
 import { is_ban_patten } from 'utils/lotto';
+import { fetchPredictExclude, fetchPredictWeight } from '@apis/client/lotto';
 
 type Combo = { nums: number[]; sum: number; oddCnt: number; highCnt: number; ac: number };
 type FilterRange = [number, number];
@@ -14,13 +15,6 @@ type FilterState = {
     fixed: Set<number>;
 };
 
-const DUMMY_EXCLUDE = [8, 11, 17, 22, 31, 36, 42];
-const makeWeights = (seed: number) =>
-    Array.from({ length: 45 }, (_, i) => ({
-        num: i + 1,
-        w: (((i + 1) * ((seed % 10) + 7) + seed) % 91) + 10,
-    })).sort((a, b) => b.w - a.w);
-const DUMMY_WEIGHTS = makeWeights(1216);
 
 const calcAC = (nums: number[]) => {
     const s = [...nums].sort((a, b) => a - b);
@@ -631,23 +625,35 @@ const GenerateTab = () => {
 
     const updateWeight = (num: number, value: number) => setWeights((prev) => ({ ...prev, [num]: value }));
 
+    const loadExclude = async () => {
+        const data = await fetchPredictExclude({ limit: 1 });
+        if (data?.items?.[0]) setExcluded(new Set(data.items[0].excludeNumList));
+    };
+
+    const loadWeights = async () => {
+        const data = await fetchPredictWeight({ limit: 1 });
+        if (data?.items?.[0]) {
+            const wList: number[] = data.items[0].weightList;
+            const max = Math.max(...wList);
+            const wMap: Record<number, number> = {};
+            wList.forEach((w: number, i: number) => {
+                wMap[i + 1] = max > 0 ? Math.round((w / max) * 100) : 50;
+            });
+            setWeights(wMap);
+        }
+    };
+
     return (
         <div css={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Panel1And2
                 excluded={excluded}
                 onToggle={toggleExclude}
                 onClearExclude={() => setExcluded(new Set())}
-                onLoadExclude={() => setExcluded(new Set(DUMMY_EXCLUDE))}
+                onLoadExclude={loadExclude}
                 weights={weights}
                 onWeight={updateWeight}
                 onResetWeights={() => setWeights(defaultWeights())}
-                onLoadWeights={() => {
-                    const wMap: Record<number, number> = {};
-                    DUMMY_WEIGHTS.forEach(({ num, w }) => {
-                        wMap[num] = w;
-                    });
-                    setWeights(wMap);
-                }}
+                onLoadWeights={loadWeights}
             />
             <Panel3Generate excluded={excluded} weights={weights} />
         </div>
