@@ -44,3 +44,15 @@ export const fetchStatsPairs = ({ fromId, toId }: StatsParams) =>
 
 export const fetchStatsAc = ({ fromId, toId }: StatsParams) =>
     statsApi('ac', { from_id: fromId, to_id: toId });
+
+type PredictParams = { cursor?: number; limit?: number };
+
+export const fetchPredictExclude = ({ cursor, limit = 20 }: PredictParams = {}) =>
+    axios({ method: GET, url: `${BASE_URL}/api/predict/feature/exclude`, params: { cursor, limit } } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
+
+export const fetchPredictWeight = ({ cursor, limit = 20 }: PredictParams = {}) =>
+    axios({ method: GET, url: `${BASE_URL}/api/predict/feature/weight`, params: { cursor, limit } } as AxiosRequestConfig)
+        .then((r) => r.data)
+        .catch((e) => { throw e?.response?.data; });
