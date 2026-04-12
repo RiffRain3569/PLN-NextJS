@@ -66,11 +66,48 @@ const genCombos = (excluded: Set<number>, weights: Record<number, number>, count
     return result;
 };
 
-const downloadCSV = (combos: Combo[]) => {
-    const csv = combos.map((c) => c.nums.join(',')).join('\n');
+const BALL_COLORS: Record<string, { bg: string; font: string }> = {
+    '1-10':  { bg: 'FFFBC400', font: 'FF000000' },
+    '11-20': { bg: 'FF0065CC', font: 'FFFFFFFF' },
+    '21-30': { bg: 'FFE03535', font: 'FFFFFFFF' },
+    '31-40': { bg: 'FF999999', font: 'FFFFFFFF' },
+    '41-45': { bg: 'FF00C73C', font: 'FFFFFFFF' },
+};
+
+const getBallColor = (num: number) => {
+    if (num <= 10) return BALL_COLORS['1-10'];
+    if (num <= 20) return BALL_COLORS['11-20'];
+    if (num <= 30) return BALL_COLORS['21-30'];
+    if (num <= 40) return BALL_COLORS['31-40'];
+    return BALL_COLORS['41-45'];
+};
+
+const downloadXLSX = async (combos: Combo[]) => {
+    const ExcelJS = (await import('exceljs')).default;
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('로또');
+
+    combos.forEach((combo) => {
+        const row = ws.addRow(combo.nums);
+        combo.nums.forEach((num, i) => {
+            const cell = row.getCell(i + 1);
+            const { bg, font } = getBallColor(num);
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+            cell.font = { color: { argb: font }, bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' },
+            };
+        });
+    });
+
+    ws.columns = Array.from({ length: 6 }, () => ({ width: 6 }));
+
+    const buf = await wb.xlsx.writeBuffer();
     const a = Object.assign(document.createElement('a'), {
-        href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })),
-        download: 'lotto.csv',
+        href: URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })),
+        download: 'lotto.xlsx',
     });
     a.click();
 };
@@ -464,7 +501,7 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                     생성하기
                 </Button>
                 {combos.length > 0 && (
-                    <button onClick={() => downloadCSV(filteredCombos)} css={{ ...btnOutline, padding: '6px 14px' }}>
+                    <button onClick={() => downloadXLSX(filteredCombos)} css={{ ...btnOutline, padding: '6px 14px' }}>
                         엑셀 다운로드
                     </button>
                 )}
