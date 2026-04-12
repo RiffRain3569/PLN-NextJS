@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { colors } from '@components/_layout/client/theme/colors';
 import NumberButton from '@components/_ui/button/NumberButton';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { is_ban_patten } from 'utils/lotto';
 import { fetchPredictExclude, fetchPredictWeight } from '@apis/client/lotto';
+import Button from '@components/_ui/button/Button';
 
 type Combo = { nums: number[]; sum: number; oddCnt: number; highCnt: number; ac: number };
 type FilterRange = [number, number];
@@ -107,11 +108,13 @@ const CheckboxFilter = ({
     values,
     selected,
     onChange,
+    labelFn,
 }: {
     label: string;
     values: number[];
     selected: Set<number> | null;
     onChange: (v: Set<number> | null) => void;
+    labelFn?: (v: number) => string;
 }) => {
     const isOn = selected !== null;
     const toggle = (v: number) => {
@@ -141,7 +144,7 @@ const CheckboxFilter = ({
                             transition: 'all 0.15s',
                         }}
                     >
-                        {v}
+                        {labelFn ? labelFn(v) : v}
                     </button>
                 );
             })}
@@ -173,6 +176,12 @@ const RangeInput = ({
 }) => {
     const isOn = value !== null;
     const v = value ?? [min, max];
+    const [localMin, setLocalMin] = useState(String(v[0]));
+    const [localMax, setLocalMax] = useState(String(v[1]));
+
+    useEffect(() => { setLocalMin(String(v[0])); }, [v[0]]);
+    useEffect(() => { setLocalMax(String(v[1])); }, [v[1]]);
+
     const inputCss = {
         width: 52,
         padding: '4px 6px',
@@ -203,21 +212,25 @@ const RangeInput = ({
             <span css={{ fontSize: '0.82rem', width: 80, flexShrink: 0, opacity: 0.8 }}>{label}</span>
             <input
                 type='number'
-                value={v[0]}
-                min={min}
-                max={v[1]}
+                value={localMin}
                 disabled={!isOn}
-                onChange={(e) => onChange([Math.max(min, Math.min(Number(e.target.value), v[1])), v[1]])}
+                onChange={(e) => setLocalMin(e.target.value)}
+                onBlur={() => {
+                    const n = Math.max(min, Math.min(Number(localMin), v[1]));
+                    onChange([n, v[1]]);
+                }}
                 css={inputCss}
             />
             <span css={{ opacity: 0.4, fontSize: '0.8rem' }}>~</span>
             <input
                 type='number'
-                value={v[1]}
-                min={v[0]}
-                max={max}
+                value={localMax}
                 disabled={!isOn}
-                onChange={(e) => onChange([v[0], Math.max(Number(e.target.value), v[0])])}
+                onChange={(e) => setLocalMax(e.target.value)}
+                onBlur={() => {
+                    const n = Math.max(Number(localMax), v[0]);
+                    onChange([v[0], Math.min(n, max)]);
+                }}
                 css={inputCss}
             />
         </div>
@@ -404,18 +417,22 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
     const [count, setCount] = useState(10);
     const [combos, setCombos] = useState<Combo[]>([]);
     const [filter, setFilter] = useState<FilterState>({ odd: null, high: null, sum: null, ac: null, fixed: new Set() });
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 50;
 
     const filteredCombos = useMemo(() => {
+        const fixedArr = [...filter.fixed];
         let list = combos;
         if (filter.odd) list = list.filter((c) => filter.odd!.has(c.oddCnt));
         if (filter.high) list = list.filter((c) => filter.high!.has(c.highCnt));
         if (filter.sum) list = list.filter((c) => c.sum >= filter.sum![0] && c.sum <= filter.sum![1]);
         if (filter.ac) list = list.filter((c) => filter.ac!.has(c.ac));
-        if (filter.fixed.size > 0) list = list.filter((c) => [...filter.fixed].every((n) => c.nums.includes(n)));
+        if (fixedArr.length > 0) list = list.filter((c) => fixedArr.every((n) => c.nums.includes(n)));
         return list;
     }, [combos, filter]);
 
-    const setF = <K extends keyof FilterState>(key: K, val: FilterState[K]) => setFilter((f) => ({ ...f, [key]: val }));
+    const setF = <K extends keyof FilterState>(key: K, val: FilterState[K]) => { setFilter((f) => ({ ...f, [key]: val })); setPage(1); };
+    const pagedCombos = filteredCombos.slice(0, page * PAGE_SIZE);
 
     return (
         <div css={panelCss}>
@@ -427,8 +444,8 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                         type='number'
                         value={count}
                         min={1}
-                        max={200}
-                        onChange={(e) => setCount(Math.max(1, Math.min(200, Number(e.target.value))))}
+                        max={1000}
+                        onChange={(e) => setCount(Math.max(1, Math.min(1000, Number(e.target.value))))}
                         css={{
                             width: 70,
                             padding: '6px 10px',
@@ -440,21 +457,14 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                         }}
                     />
                 </div>
-                <button
-                    onClick={() => setCombos(genCombos(excluded, weights, count))}
-                    css={{
-                        padding: '7px 20px',
-                        background: '#7C3AED',
-                        borderRadius: 4,
-                        fontSize: '0.9rem',
-                        fontWeight: 'bold',
-                        '&:hover': { background: '#6d28d9' },
-                    }}
+                <Button
+                    onClick={() => { setCombos(genCombos(excluded, weights, count)); setPage(1); }}
+                    css={{ width: 'auto', padding: '6px 20px', fontSize: '0.9rem', fontWeight: 'bold', borderRadius: 4, minHeight: 'unset' }}
                 >
                     생성하기
-                </button>
+                </Button>
                 {combos.length > 0 && (
-                    <button onClick={() => downloadCSV(filteredCombos)} css={btnOutline}>
+                    <button onClick={() => downloadCSV(filteredCombos)} css={{ ...btnOutline, padding: '6px 14px' }}>
                         엑셀 다운로드
                     </button>
                 )}
@@ -468,16 +478,18 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                         <p css={{ fontSize: '0.75rem', opacity: 0.5, marginBottom: 12 }}>결과 필터 (실시간 적용)</p>
                         <div css={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                             <CheckboxFilter
-                                label='홀/짝 (홀 기준)'
+                                label='홀/짝'
                                 values={[0, 1, 2, 3, 4, 5, 6]}
                                 selected={filter.odd}
                                 onChange={(v) => setF('odd', v)}
+                                labelFn={(v) => `${v}:${6 - v}`}
                             />
                             <CheckboxFilter
-                                label='고/저 (고 기준)'
+                                label='고/저'
                                 values={[0, 1, 2, 3, 4, 5, 6]}
                                 selected={filter.high}
                                 onChange={(v) => setF('high', v)}
+                                labelFn={(v) => `${v}:${6 - v}`}
                             />
                             <CheckboxFilter
                                 label='AC값'
@@ -545,10 +557,10 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                     </div>
 
                     <p css={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: 10 }}>
-                        {filteredCombos.length}개 표시 중 (전체 {combos.length}개)
+                        {filteredCombos.length}개 (전체 {combos.length}개)
                     </p>
                     <div css={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                        {filteredCombos.map((combo, i) => (
+                        {pagedCombos.map((combo, i) => (
                             <div
                                 key={i}
                                 css={{
@@ -605,6 +617,14 @@ const Panel3Generate = ({ excluded, weights }: { excluded: Set<number>; weights:
                             </div>
                         ))}
                     </div>
+                    {pagedCombos.length < filteredCombos.length && (
+                        <button
+                            onClick={() => setPage((p) => p + 1)}
+                            css={{ ...btnOutline, width: '100%', padding: '10px', marginTop: 8 }}
+                        >
+                            더 보기 ({filteredCombos.length - pagedCombos.length}개 남음)
+                        </button>
+                    )}
                 </>
             )}
         </div>
