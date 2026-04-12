@@ -83,7 +83,7 @@ const saveToLibrary = (nums: number[]) => {
     localStorage.setItem('lotto-saved', JSON.stringify([...saved, nums]));
 };
 
-const defaultWeights = () => Object.fromEntries(Array.from({ length: 45 }, (_, i) => [i + 1, 50]));
+const defaultWeights = () => Object.fromEntries(Array.from({ length: 45 }, (_, i) => [i + 1, 100]));
 
 const panelCss = {
     background: 'rgba(255,255,255,0.04)',
@@ -347,11 +347,11 @@ const Panel1And2 = ({
                                 type='number'
                                 value={weights[num]}
                                 min={0}
-                                max={100}
+                                max={9999}
                                 disabled={isExcluded}
-                                onChange={(e) => onWeight(num, Math.max(0, Math.min(100, Number(e.target.value))))}
+                                onChange={(e) => onWeight(num, Math.max(0, Math.min(9999, Number(e.target.value))))}
                                 css={{
-                                    width: 36,
+                                    width: 52,
                                     padding: '2px 4px',
                                     textAlign: 'center',
                                     background: colors.background,
@@ -370,10 +370,10 @@ const Panel1And2 = ({
                                         onClick={() =>
                                             onWeight(
                                                 num,
-                                                Math.max(0, Math.min(100, weights[num] + (op === '+' ? 1 : -1))),
+                                                Math.max(0, Math.min(9999, weights[num] + (op === '+' ? 1 : -1))),
                                             )
                                         }
-                                        disabled={isExcluded || (op === '−' ? weights[num] <= 0 : weights[num] >= 100)}
+                                        disabled={isExcluded || (op === '−' ? weights[num] <= 0 : weights[num] >= 9999)}
                                         css={{
                                             width: 16,
                                             height: 14,
@@ -634,10 +634,9 @@ const GenerateTab = () => {
         const data = await fetchPredictWeight({ limit: 1 });
         if (data?.items?.[0]) {
             const wList: number[] = data.items[0].weightList;
-            const max = Math.max(...wList);
             const wMap: Record<number, number> = {};
             wList.forEach((w: number, i: number) => {
-                wMap[i + 1] = max > 0 ? Math.round((w / max) * 100) : 50;
+                wMap[i + 1] = Math.round(w * 100);
             });
             setWeights(wMap);
         }

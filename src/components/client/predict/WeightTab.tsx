@@ -54,7 +54,7 @@ const WeightTab = () => {
         <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {items.map((item) => {
                 const sorted = item.weightList
-                    .map((w, i) => ({ num: i + 1, raw: w, w: Math.floor(w * 100) }))
+                    .map((w, i) => ({ num: i + 1, raw: w, w: Math.round(w * 100) }))
                     .sort((a, b) => b.raw - a.raw);
                 return (
                     <div key={item.lottoId} css={{ ...panelCss, display: 'flex', flexDirection: 'column', gap: 10 }}>
