@@ -142,7 +142,9 @@ const POST = async (req: NextApiRequest, res: NextApiResponse) => {
 
         const dhjSession = cookieMap.get('DHJSESSIONID');
 
-        const dhlCookies = rawSetCookies.map((cookie) => cookie.replace('Domain=.dhlottery.co.kr;', ''));
+        const dhlCookies = rawSetCookies.map((cookie) =>
+            cookie.replace('Domain=.dhlottery.co.kr;', '').replace(/;\s*Secure/gi, ''),
+        );
         // userId를 직접 설정 (DHL 서버 쿠키 의존 없이 안정적으로 관리)
         dhlCookies.push(`dhl_userId=${userId}; Path=/; Max-Age=${60 * 60 * 24}; SameSite=Lax`);
 
