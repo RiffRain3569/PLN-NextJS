@@ -1,7 +1,5 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { NextResponse } from 'next/server';
-import qs from 'qs';
 
 // param: [
 //     { arrGameChoiceNum: '8,18,20,27,32,38', genType: '1', alpabet: 'A' },
@@ -28,7 +26,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
     const preData = await axios
         .get('https://ol.dhlottery.co.kr/olotto/game/game645.do', {
             headers: {
-                Cookie: qs.stringify(req.cookies).split('&').join('; '),
+                Cookie: Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; '),
                 Host: 'ol.dhlottery.co.kr',
             },
         })
@@ -42,14 +40,14 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
         });
 
     if (!preData.curRound) {
-        return NextResponse.json({ message: '구매할 수 없습니다.' }, { status: 501 });
+        return res.status(501).json({ message: '구매할 수 없습니다.' });
     }
 
     // ready ip 데이터 가져오기
     const readyData = await axios
         .post('https://ol.dhlottery.co.kr/olotto/game/egovUserReadySocket.json', '', {
             headers: {
-                Cookie: qs.stringify(req.cookies).split('&').join('; '),
+                Cookie: Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; '),
                 'Content-Type': 'application/json; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',
@@ -61,7 +59,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
         });
 
     if (!readyData.direct) {
-        return NextResponse.json({ message: 'ip를 찾을 수 없습니다.' }, { status: 501 });
+        return res.status(501).json({ message: 'ip를 찾을 수 없습니다.' });
     }
 
     const body = {
@@ -87,7 +85,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
     const result = await axios
         .post('https://ol.dhlottery.co.kr/olotto/game/execBuy.do', new URLSearchParams(body).toString(), {
             headers: {
-                Cookie: qs.stringify(req.cookies).split('&').join('; '),
+                Cookie: Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; '),
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 Host: 'ol.dhlottery.co.kr',
                 Origin: 'https://ol.dhlottery.co.kr',

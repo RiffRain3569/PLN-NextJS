@@ -4,7 +4,7 @@ import qs from 'qs';
 
 const POST = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const cookieHeader = qs.stringify(req.cookies).split('&').join('; ');
+        const cookieHeader = Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; ');
 
         const response = await axios.get('https://www.dhlottery.co.kr/mypage/selectUserMndp.do', {
             headers: { Cookie: cookieHeader },
