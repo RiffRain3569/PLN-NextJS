@@ -2,6 +2,10 @@ import { css, Global } from '@emotion/react';
 import { colors } from './theme/colors';
 
 const style = css`
+    html {
+        scrollbar-gutter: stable;
+    }
+
     html,
     body {
         margin: 0;
