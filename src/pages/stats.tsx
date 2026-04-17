@@ -420,7 +420,7 @@ const StatsPage = () => {
                 </div>
 
                 {/* 탭 */}
-                <div css={{ display: 'flex', borderBottom: `1px solid ${colors.line}`, overflowX: 'auto' }}>
+                <div css={{ display: 'flex', borderBottom: `1px solid ${colors.line}`, flexWrap: 'wrap' }}>
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab;
                         return (
